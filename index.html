@@ -97,6 +97,15 @@ main > .screen{width:100%;animation:rise .4s ease both}
 .uf label{font-size:clamp(10px,calc(.73*var(--u)),calc(14px*var(--k)));letter-spacing:.28em;font-weight:600;color:var(--dim);text-transform:uppercase}
 .uf input{width:100%;min-width:0;background:transparent;border:0;outline:none;padding:0;font-size:clamp(17px,calc(1.35*var(--u)),calc(26px*var(--k)));font-weight:400;line-height:1.15}
 .uf input::placeholder{color:rgba(244,244,246,.22)}
+/* Chrome a Safari podbarvují automaticky vyplněná políčka; přebíjíme to, ať drží tmavý vzhled. */
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus,input:-webkit-autofill:active{
+  -webkit-text-fill-color:var(--ink);
+  -webkit-background-clip:text;
+  caret-color:var(--ink);
+  transition:background-color 600000s 0s,color 600000s 0s
+}
+input:autofill{background:transparent;color:var(--ink)}
+
 
 .cbox{position:relative;display:flex;gap:14px;align-items:flex-start;cursor:pointer;font-size:clamp(13px,calc(.8*var(--u)),calc(15px*var(--k)));line-height:1.6;color:var(--muted)}
 .cbox input{position:absolute;opacity:0;width:1px;height:1px}
