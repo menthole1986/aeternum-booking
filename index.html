@@ -46,6 +46,7 @@ main > .screen{width:100%;animation:rise .4s ease both}
 .logo .wm span{font-size:clamp(8px,calc(.58*var(--u)),calc(11px*var(--k)));letter-spacing:.44em;color:#6B4A9A;font-weight:500;line-height:1}
 .linkbtn{background:none;border:0;padding:6px 0;color:var(--dim);font-size:clamp(11px,calc(.75*var(--u)),calc(13px*var(--k)));letter-spacing:.26em;font-weight:600;cursor:pointer;text-transform:uppercase;text-decoration:none}
 .linkbtn:hover{color:var(--ink)}
+.top-actions{display:flex;align-items:center;gap:clamp(14px,calc(1.4*var(--u)),calc(26px*var(--k)))}
 
 .eyebrow{display:inline-block;font-size:clamp(11px,calc(.85*var(--u)),calc(16px*var(--k)));font-weight:600;letter-spacing:.34em;text-transform:uppercase;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
 .h-l{margin:clamp(10px,calc(1*var(--u)),calc(18px*var(--k))) 0 0;font-size:clamp(30px,calc(3.75*var(--u)),calc(72px*var(--k)));font-weight:700;line-height:1.06;letter-spacing:-.012em}
@@ -149,7 +150,10 @@ main > .screen{width:100%;animation:rise .4s ease both}
   <header class="top">
     <div class="logo" aria-label="Aeternum Clinic"><svg aria-hidden="true"><use href="#logoMark"/></svg>
       <div class="wm"><b>AETERNUM</b><span>CLINIC</span></div></div>
-    <a class="linkbtn" href="https://www.aeternumclinic.cz">Zpátky na web ›</a>
+    <div class="top-actions">
+      <button type="button" class="linkbtn" data-act="restart">Nová rezervace</button>
+      <a class="linkbtn" href="https://www.aeternumclinic.cz">Zpátky na web ›</a>
+    </div>
   </header>
   <main><div class="screen"><div class="split">
     <div>
@@ -310,6 +314,7 @@ function rerender() {
 /* ---------- události ---------- */
 document.addEventListener('click', async e => {
   const b = e.target.closest('button, a'); if (!b) return;
+  if (b.dataset.act === 'restart') { resetAll(); return; }
   if (b.dataset.btype) { S.booking.type = b.dataset.btype; S.booking.slot = null; slotCache = null; rerender(); loadSlots(); return; }
   if (b.dataset.day) { S.booking.day = b.dataset.day; S.booking.slot = null; rerender(); return; }
   if (b.dataset.slot) { S.booking.slot = b.dataset.slot; rerender(); return; }
@@ -467,6 +472,19 @@ async function prefill() {
     if (j.phone && !S.a.phone) S.a.phone = j.phone;
     rerender();
   } catch (e) { /* odkaz může být starý, formulář se vyplní ručně */ }
+}
+
+/* Začátek odznovu. Nezaplacený termín zůstává blokovaný, dokud nevyprší,
+   proto se na to ptáme. */
+function resetAll() {
+  const pending = S.booking && S.booking.hold && !S.booking.paid;
+  if (pending && !confirm('Rozdělaná rezervace se zruší a termín Vám přestaneme držet. Opravdu začít znovu?')) return;
+  clearInterval(pollTimer);
+  slotCache = null;
+  S = blank();
+  try { sessionStorage.removeItem(CFG.storageKey); } catch (e) {}
+  rerender();
+  window.scrollTo(0, 0);
 }
 
 /* ---------- start ---------- */
