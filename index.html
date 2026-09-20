@@ -49,7 +49,7 @@ main > .screen{width:100%;animation:rise .4s ease both}
 .top-actions{display:flex;align-items:center;gap:clamp(14px,calc(1.4*var(--u)),calc(26px*var(--k)))}
 
 .eyebrow{display:inline-block;font-size:clamp(11px,calc(.85*var(--u)),calc(16px*var(--k)));font-weight:600;letter-spacing:.34em;text-transform:uppercase;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
-.h-l{margin:clamp(10px,calc(1*var(--u)),calc(18px*var(--k))) 0 0;font-size:clamp(30px,calc(3.75*var(--u)),calc(72px*var(--k)));font-weight:700;line-height:1.06;letter-spacing:-.012em}
+.h-l{margin:clamp(10px,calc(1*var(--u)),calc(18px*var(--k))) 0 0;font-size:clamp(30px,calc(3.75*var(--u)),calc(72px*var(--k)));font-weight:700;line-height:1.12;letter-spacing:-.012em}
 .light{font-weight:400;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
 .lead{font-size:clamp(15px,calc(1.15*var(--u)),calc(22px*var(--k)));font-weight:500;letter-spacing:.04em;line-height:1.62;color:var(--muted);max-width:30em}
 .small-caps{font-size:clamp(11px,calc(.8*var(--u)),calc(15px*var(--k)));letter-spacing:.3em;font-weight:600;color:var(--dim);text-transform:uppercase}
@@ -200,7 +200,7 @@ input:autofill{background:transparent;color:var(--ink)}
     </div>
     <div class="panel" id="panel"></div>
   </div></div></main>
-  <div class="disclaimer">Aeternum Clinic · My Design Creatives s.r.o. · IČO 07162235 · Pod Harfou 943/34, 190 00 Praha 9 · info@aeternumclinic.cz · +420 775 481 700</div>
+  <div class="disclaimer">Aeternum Clinic · My Design Creatives s.r.o. · IČO 07162235 · Chlumčanského 497/5, 180 00 Praha 8 · info@aeternumclinic.cz · +420 775 481 700 · <a href="https://www.aeternumclinic.cz/terms-conditions" target="_blank" rel="noopener" style="color:var(--dim)">Zásady zpracování osobních údajů</a></div>
 </div>
 
 <script>
@@ -226,6 +226,7 @@ const CFG = {
   iban: 'CZ5020100000002801448429',
   phone: '+420775481700',
   email: 'info@aeternumclinic.cz',
+  gdprUrl: 'https://www.aeternumclinic.cz/terms-conditions',
   storageKey: 'aeternum-booking-v1',
   pollMs: 8000
 };
@@ -334,7 +335,7 @@ function formHTML() {
     <div class="ufrow one">${uf('phone', 'Telefon', { type: 'tel', inputmode: 'tel', autocomplete: 'tel', placeholder: '+420 777 123 456' })}</div>
     <p class="fine">Telefon potřebujeme na SMS připomínku 24 hodin před konzultací.</p>
     <label class="cbox"><input type="checkbox" id="c-book" data-consent="bookConsent" ${S.a.bookConsent ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
-      <span>Souhlasím se zpracováním uvedených údajů za účelem rezervace konzultace a s tím, aby mě Aeternum Clinic v této věci kontaktovala.</span></label>
+      <span>Souhlasím se zpracováním uvedených údajů za účelem rezervace konzultace a s tím, aby mě Aeternum Clinic v této věci kontaktovala. Více v <a href="${CFG.gdprUrl}" target="_blank" rel="noopener" style="color:var(--ink)">zásadách zpracování osobních údajů</a>.</span></label>
     <button type="button" class="btn pri" id="bookBtn"${slot ? '' : ' disabled'}>Rezervovat termín</button>
     <span class="err" id="bookErr" role="alert"></span></div>`;
 }
