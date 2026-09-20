@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rezervace konzultace · Aeternum Clinic</title>
+<meta name="theme-color" content="#19191B">
+<meta name="description" content="Rezervace vstupní konzultace v Aeternum Clinic. Vyberte si termín online nebo osobně v Praze.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --ground:#19191B; --ink:#F4F4F6; --muted:rgba(244,244,246,.62); --dim:rgba(244,244,246,.40);
+  --line:rgba(255,255,255,.14); --line2:rgba(255,255,255,.24);
+  --grad:linear-gradient(90deg,#7A3E9E,#2F86CC);
+  --grad-text:linear-gradient(90deg,#A27AD2,#4FA3E0);
+  --good:#5ED3A0; --warn:#F2B45A; --crit:#EE7A6D;
+  --gut:clamp(20px,calc(7.3*var(--u)),calc(140px*var(--k)));
+  --u:min(1vw,1.7778vh); --k:1;
+  --font:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (min-width:2200px) and (min-height:1200px){:root{--k:1.35}}
+@media (max-width:760px){:root{--u:1vw}}
+html{-webkit-text-size-adjust:100%}
+html,body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font)}
+body{min-height:100dvh;line-height:1.5}
+button,input{font:inherit;color:inherit}
+p{margin:0}
+:focus-visible{outline:2px solid #4FA3E0;outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:var(--ground)}
+.glow{position:absolute;border-radius:50%;filter:blur(40px)}
+.app{position:relative;z-index:1;min-height:100dvh;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:clamp(18px,calc(3.1*var(--u)),calc(58px*var(--k))) var(--gut) 0}
+main{flex:1;display:flex;align-items:center;padding:clamp(28px,calc(3.2*var(--u)),calc(60px*var(--k))) var(--gut)}
+main > .screen{width:100%;animation:rise .4s ease both}
+@keyframes rise{from{opacity:.001;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.logo{display:flex;align-items:center;gap:clamp(12px,calc(1.15*var(--u)),calc(22px*var(--k)));text-decoration:none;color:inherit}
+.logo svg{width:clamp(40px,calc(2.95*var(--u)),calc(56px*var(--k)));height:clamp(40px,calc(2.95*var(--u)),calc(56px*var(--k)));fill:none;stroke:#6B3A96;stroke-width:6.5;flex:none}
+.logo .wm{display:flex;flex-direction:column;gap:4px}
+.logo .wm b{font-size:clamp(18px,calc(1.38*var(--u)),calc(26px*var(--k)));font-weight:600;letter-spacing:.035em;line-height:1;background:linear-gradient(90deg,#6E3D9C,#2F7FC4);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo .wm span{font-size:clamp(8px,calc(.58*var(--u)),calc(11px*var(--k)));letter-spacing:.44em;color:#6B4A9A;font-weight:500;line-height:1}
+.linkbtn{background:none;border:0;padding:6px 0;color:var(--dim);font-size:clamp(11px,calc(.75*var(--u)),calc(13px*var(--k)));letter-spacing:.26em;font-weight:600;cursor:pointer;text-transform:uppercase;text-decoration:none}
+.linkbtn:hover{color:var(--ink)}
+
+.eyebrow{display:inline-block;font-size:clamp(11px,calc(.85*var(--u)),calc(16px*var(--k)));font-weight:600;letter-spacing:.34em;text-transform:uppercase;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
+.h-l{margin:clamp(10px,calc(1*var(--u)),calc(18px*var(--k))) 0 0;font-size:clamp(30px,calc(3.75*var(--u)),calc(72px*var(--k)));font-weight:700;line-height:1.06;letter-spacing:-.012em}
+.light{font-weight:400;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:clamp(15px,calc(1.15*var(--u)),calc(22px*var(--k)));font-weight:500;letter-spacing:.04em;line-height:1.62;color:var(--muted);max-width:30em}
+.small-caps{font-size:clamp(11px,calc(.8*var(--u)),calc(15px*var(--k)));letter-spacing:.3em;font-weight:600;color:var(--dim);text-transform:uppercase}
+.bul{display:flex;flex-direction:column;gap:12px;margin-top:clamp(18px,calc(1.45*var(--u)),calc(28px*var(--k)))}
+.bul div{display:flex;gap:16px;align-items:baseline;font-size:clamp(14px,calc(1.05*var(--u)),calc(20px*var(--k)));color:var(--muted);line-height:1.45}
+.bul div::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--grad);flex:none;transform:translateY(-3px)}
+.split{display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,1fr);gap:clamp(36px,calc(6.5*var(--u)),calc(130px*var(--k)));align-items:start}
+.split > *{min-width:0}
+@media (max-width:1000px){.split{grid-template-columns:minmax(0,1fr)}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;height:clamp(54px,calc(3.45*var(--u)),calc(66px*var(--k)));padding:0 clamp(26px,calc(2.4*var(--u)),calc(46px*var(--k)));border-radius:999px;border:0;font-size:clamp(13px,calc(.9*var(--u)),calc(17px*var(--k)));font-weight:700;letter-spacing:.22em;text-transform:uppercase;white-space:nowrap;cursor:pointer;transition:filter .15s,transform .1s,opacity .15s;text-decoration:none}
+.btn:active{transform:scale(.98)}
+.btn.pri{background:var(--grad);color:#fff}
+.btn.pri:hover{filter:brightness(1.12)}
+.btn[disabled]{opacity:.38;cursor:default}
+.err{font-size:clamp(13px,calc(.85*var(--u)),calc(16px*var(--k)));color:var(--crit);font-weight:600}
+.err:empty{display:none}
+
+.panel{background:rgba(21,21,25,.9);border:1px solid rgba(255,255,255,.12);border-radius:clamp(24px,calc(1.9*var(--u)),calc(36px*var(--k)));padding:clamp(24px,calc(2.9*var(--u)),calc(56px*var(--k)))}
+.panel h3{margin:14px 0 0;font-size:clamp(26px,calc(2.3*var(--u)),calc(44px*var(--k)));font-weight:700;line-height:1.15}
+.panel .btn.pri{width:100%}
+.price{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 22px;margin-top:clamp(14px,calc(1.15*var(--u)),calc(22px*var(--k)))}
+.price b{font-size:clamp(42px,calc(4.4*var(--u)),calc(84px*var(--k)));font-weight:700;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.fine{font-size:clamp(12px,calc(.8*var(--u)),calc(15px*var(--k)));color:var(--dim);line-height:1.55}
+.seg2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))}
+.seg2 button{height:clamp(52px,calc(3.2*var(--u)),calc(62px*var(--k)));border-radius:16px;border:1.5px solid rgba(255,255,255,.22);background:transparent;font-size:clamp(13px,calc(.92*var(--u)),calc(17px*var(--k)));font-weight:600;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.seg2 button[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff}
+.days{display:flex;gap:8px;overflow-x:auto;max-width:100%;margin-top:18px;padding-bottom:6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.days::-webkit-scrollbar{display:none}
+.day{flex:none;min-width:74px;padding:10px 12px;border-radius:14px;border:1.5px solid rgba(255,255,255,.18);background:transparent;cursor:pointer;text-align:center;color:var(--muted)}
+.day b{display:block;font-size:19px;font-weight:700;color:var(--ink);line-height:1.1}
+.day span{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-top:4px}
+.day[aria-pressed="true"]{border-color:transparent;background:var(--grad);color:#fff}
+.times{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;margin-top:16px}
+.time{height:48px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:transparent;font-size:16px;font-weight:600;cursor:pointer;color:var(--ink);font-variant-numeric:tabular-nums}
+.time:hover{border-color:rgba(255,255,255,.5)}
+.time[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff}
+.emptyslots{margin-top:16px;font-size:14px;color:var(--muted);line-height:1.6}
+
+.ufrow{display:grid;gap:clamp(18px,calc(1.8*var(--u)),calc(30px*var(--k)));grid-template-columns:repeat(var(--cols,2),minmax(0,1fr))}
+.ufrow.one{--cols:1}
+@media (max-width:760px){.ufrow{--cols:1!important}}
+.uf{display:flex;flex-direction:column;gap:8px;min-width:0;padding-bottom:10px;border-bottom:1.5px solid var(--line2);transition:border-color .15s}
+.uf:focus-within{border-color:#4FA3E0}
+.uf label{font-size:clamp(10px,calc(.73*var(--u)),calc(14px*var(--k)));letter-spacing:.28em;font-weight:600;color:var(--dim);text-transform:uppercase}
+.uf input{width:100%;min-width:0;background:transparent;border:0;outline:none;padding:0;font-size:clamp(17px,calc(1.35*var(--u)),calc(26px*var(--k)));font-weight:400;line-height:1.15}
+.uf input::placeholder{color:rgba(244,244,246,.22)}
+
+.cbox{position:relative;display:flex;gap:14px;align-items:flex-start;cursor:pointer;font-size:clamp(13px,calc(.8*var(--u)),calc(15px*var(--k)));line-height:1.6;color:var(--muted)}
+.cbox input{position:absolute;opacity:0;width:1px;height:1px}
+.cbox .box{width:26px;height:26px;border-radius:8px;border:1.5px solid rgba(255,255,255,.35);flex:none;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.cbox .box svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.cbox input:checked + .box{background:var(--grad);border-color:transparent}
+.cbox input:checked + .box svg{opacity:1}
+.bform{display:flex;flex-direction:column;gap:clamp(16px,calc(1.4*var(--u)),calc(26px*var(--k)));margin-top:clamp(20px,calc(1.6*var(--u)),calc(30px*var(--k)))}
+.picked{display:flex;gap:10px;align-items:center;font-size:clamp(13px,calc(.92*var(--u)),calc(17px*var(--k)));color:var(--ink)}
+.picked svg{width:18px;height:18px;flex:none;stroke:var(--good);fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.hold{display:flex;gap:12px;align-items:flex-start;margin-top:18px;padding:14px 16px;border-radius:16px;border:1px solid rgba(242,180,90,.35);background:rgba(242,180,90,.07);font-size:clamp(13px,calc(.9*var(--u)),calc(16px*var(--k)));line-height:1.55;color:var(--ink)}
+.hold .dot{width:8px;height:8px;border-radius:50%;background:var(--warn);flex:none;margin-top:.5em;animation:breathe 1.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(.92);opacity:.6}50%{transform:scale(1.08);opacity:1}}
+.summ{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;margin:18px 0 0;font-size:clamp(14px,calc(.95*var(--u)),calc(18px*var(--k)))}
+.summ dt{color:var(--dim);font-size:clamp(10px,calc(.7*var(--u)),calc(13px*var(--k)));letter-spacing:.24em;text-transform:uppercase;font-weight:600;align-self:center}
+.summ dd{margin:0;font-weight:700;text-align:right}
+.paybox{margin-top:18px;display:flex;flex-direction:column;gap:12px}
+.qrwrap{display:grid;grid-template-columns:auto 1fr;gap:clamp(16px,calc(1.6*var(--u)),calc(30px*var(--k)));align-items:center;padding:clamp(14px,calc(1.2*var(--u)),calc(24px*var(--k)));border:1px solid var(--line2);border-radius:20px}
+.qrwrap .qr{background:#fff;border-radius:14px;padding:10px;line-height:0}
+.qrwrap .qr img{width:clamp(140px,calc(10*var(--u)),calc(190px*var(--k)));height:auto;image-rendering:pixelated}
+.qrwrap dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:clamp(13px,calc(.9*var(--u)),calc(17px*var(--k)))}
+.qrwrap dt{color:var(--dim);font-size:clamp(10px,calc(.68*var(--u)),calc(12px*var(--k)));letter-spacing:.22em;text-transform:uppercase;font-weight:600;align-self:center}
+.qrwrap dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+@media (max-width:560px){.qrwrap{grid-template-columns:1fr;justify-items:center}.qrwrap dl{width:100%}}
+.waiting{display:flex;align-items:center;gap:12px;margin-top:16px;font-size:clamp(13px,calc(.88*var(--u)),calc(16px*var(--k)));color:var(--muted)}
+.waiting .dot{width:8px;height:8px;border-radius:50%;background:#4FA3E0;flex:none;animation:breathe 1.2s ease-in-out infinite}
+.success .tick{width:clamp(56px,calc(3.6*var(--u)),calc(68px*var(--k)));height:clamp(56px,calc(3.6*var(--u)),calc(68px*var(--k)));border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.success .tick svg{width:44%;height:44%;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.disclaimer{padding:clamp(22px,calc(2.3*var(--u)),calc(44px*var(--k))) var(--gut) clamp(30px,calc(3*var(--u)),calc(60px*var(--k)));font-size:clamp(10px,calc(.62*var(--u)),calc(12px*var(--k)));color:var(--dim);line-height:1.6;border-top:1px solid rgba(255,255,255,.08);position:relative;z-index:1}
+@media (max-width:760px){.panel{padding:22px 18px;border-radius:22px}.seg2 button{height:50px;font-size:14px}.h-l{font-size:28px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="logoMark" viewBox="0 0 120 120"><circle cx="45" cy="70" r="37"/><circle cx="70" cy="47" r="40"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+</defs></svg>
+
+<div class="bg"><div class="glow" style="right:-12vw;top:-24vh;width:62vw;height:100vh;background:radial-gradient(closest-side,rgba(36,131,197,.3),rgba(122,62,158,.2) 60%,rgba(25,25,27,0))"></div></div>
+<div class="app">
+  <header class="top">
+    <div class="logo" aria-label="Aeternum Clinic"><svg aria-hidden="true"><use href="#logoMark"/></svg>
+      <div class="wm"><b>AETERNUM</b><span>CLINIC</span></div></div>
+    <a class="linkbtn" href="https://www.aeternumclinic.cz">Zpátky na web ›</a>
+  </header>
+  <main><div class="screen"><div class="split">
+    <div>
+      <span class="eyebrow">Aeternum Clinic</span>
+      <h1 class="h-l">Vstupní<br><span class="light">konzultace</span></h1>
+      <p class="lead" style="margin-top:clamp(16px,calc(1.4*var(--u)),calc(28px*var(--k)))">S koordinátorem péče společně proberete:</p>
+      <div class="bul"><div>Individuální nastavení Vašeho programu</div><div>Podmínky smlouvy o programu péče</div><div>Možnosti financování programu</div></div>
+      <p class="fine" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">Konzultace trvá 30 minut a proběhne online, nebo osobně v Praze. Rezervace je platná po uhrazení poplatku.</p>
+    </div>
+    <div class="panel" id="panel"></div>
+  </div></div></main>
+  <div class="disclaimer">Aeternum Clinic · My Design Creatives s.r.o. · IČO 07162235 · Pod Harfou 943/34, 190 00 Praha 9 · info@aeternumclinic.cz · +420 775 481 700</div>
+</div>
+
+<script>
+/* ==========================================================================
+   Aeternum Clinic — rezervace vstupní konzultace
+   Samostatná stránka se stejným rezervačním krokem jako screening.
+   Parametry URL: ?id=SC260920-ABC123 (předvyplní údaje ze screeningu)
+   ========================================================================== */
+
+const URLP = new URLSearchParams(location.search);
+const CFG = {
+  apiUrl: '',                                   // webová aplikace z aeternum_screening_apps_script.gs
+  price: 490,
+  duration: 30,
+  holdMinutes: 120,
+  leadDays: 14,
+  minHours: 24,
+  slotStepMin: 60,
+  hours: {                                      // záloha, dokud neodpovídá backend
+    1: [['11:00', '19:00']], 2: [['07:00', '10:00']], 3: [['12:00', '19:00']],
+    4: [['07:00', '10:00']], 5: [['12:00', '18:00']], 6: [['17:00', '19:00']], 0: [['11:00', '13:00']]
+  },
+  iban: 'CZ5020100000002801448429',
+  phone: '+420775481700',
+  email: 'info@aeternumclinic.cz',
+  storageKey: 'aeternum-booking-v1',
+  pollMs: 8000
+};
+
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmt = n => Math.round(n).toLocaleString('cs-CZ');
+const pad2 = n => String(n).padStart(2, '0');
+const icon = id => `<svg aria-hidden="true"><use href="#${id}"/></svg>`;
+const localIso = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+
+const newSid = () => (self.crypto && crypto.randomUUID) ? crypto.randomUUID() : Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+const blank = () => ({ sid: newSid(), screeningId: URLP.get('id') || '', a: {}, booking: { type: null, slot: null, day: null } });
+let S = blank();
+function save() { try { sessionStorage.setItem(CFG.storageKey, JSON.stringify(S)); } catch (e) {} }
+function load() { try { const raw = sessionStorage.getItem(CFG.storageKey); if (raw) S = Object.assign(blank(), JSON.parse(raw)); } catch (e) {} }
+
+const DOW = ['neděle', 'pondělí', 'úterý', 'středa', 'čtvrtek', 'pátek', 'sobota'];
+const DOW_SHORT = ['ne', 'po', 'út', 'st', 'čt', 'pá', 'so'];
+const MON = ['ledna', 'února', 'března', 'dubna', 'května', 'června', 'července', 'srpna', 'září', 'října', 'listopadu', 'prosince'];
+let slotCache = null, pollTimer = null;
+
+/* ---------- panel ---------- */
+function panelHTML() {
+  const B = S.booking;
+  if (B.paid) {
+    const d = new Date(B.slot);
+    return `<div class="success"><div class="tick">${icon('i-check')}</div><span class="eyebrow">Potvrzeno</span>
+      <h3>Termín je Váš</h3>
+      <p class="lead" style="margin-top:14px">${esc(DOW[d.getDay()])} ${d.getDate()}. ${esc(MON[d.getMonth()])}, ${pad2(d.getHours())}:${pad2(d.getMinutes())} — ${B.type === 'online' ? 'online' : 'osobně v Praze'}.</p>
+      <p class="lead" style="margin-top:12px">Potvrzení a pozvánku do kalendáře jsme poslali na <b style="color:var(--ink)">${esc(S.a.email)}</b>. Den před konzultací Vám přijde SMS připomínka.</p>
+      <p class="fine" style="margin-top:16px">Potřebujete termín změnit? Zavolejte nám na ${esc(CFG.phone)}.</p></div>`;
+  }
+  if (B.hold) return paymentHTML();
+
+  return `<span class="eyebrow">Vstupní konzultace</span><h3>Rezervace termínu</h3>
+    <div class="price"><b>${fmt(CFG.price)} Kč</b><span class="small-caps">${CFG.duration} minut</span></div>
+    <div class="seg2" role="group" aria-label="Forma konzultace">
+      <button type="button" data-btype="online" aria-pressed="${B.type === 'online'}">Online</button>
+      <button type="button" data-btype="osobne" aria-pressed="${B.type === 'osobne'}">Osobně v Praze</button>
+    </div>
+    ${B.type ? slotsHTML() : `<p class="fine" style="margin-top:16px">Vyberte formu konzultace a ukážeme Vám volné termíny.</p>`}`;
+}
+
+function slotsHTML() {
+  if (!slotCache) { loadSlots(); return `<p class="emptyslots">Načítám volné termíny…</p>`; }
+  if (!slotCache.length) return `<p class="emptyslots">V nejbližších ${CFG.leadDays} dnech už nemáme volno. Zavolejte nám prosím na ${esc(CFG.phone)}, termín najdeme.</p>`;
+  const days = [...new Set(slotCache.map(s => s.slice(0, 10)))];
+  const sel = S.booking.day && days.includes(S.booking.day) ? S.booking.day : days[0];
+  S.booking.day = sel;
+  const times = slotCache.filter(s => s.startsWith(sel));
+  return `<div class="days" role="group" aria-label="Den">${days.map(d => {
+      const dt = new Date(d + 'T12:00:00');
+      return `<button type="button" class="day" data-day="${d}" aria-pressed="${d === sel}"><b>${dt.getDate()}. ${dt.getMonth() + 1}.</b><span>${DOW_SHORT[dt.getDay()]}</span></button>`;
+    }).join('')}</div>
+    <div class="times" role="group" aria-label="Čas">${times.map(t => {
+      const dt = new Date(t);
+      return `<button type="button" class="time" data-slot="${t}" aria-pressed="${S.booking.slot === t}">${pad2(dt.getHours())}:${pad2(dt.getMinutes())}</button>`;
+    }).join('')}</div>
+    ${formHTML()}`;
+}
+
+function uf(key, label, o = {}) {
+  const val = S.a[key] ?? '';
+  return `<div class="uf" id="w-${key}"><label for="f-${key}">${esc(label)}</label>
+    <input id="f-${key}" type="${o.type || 'text'}" inputmode="${o.inputmode || 'text'}" autocomplete="${o.autocomplete || 'off'}" placeholder="${esc(o.placeholder || '')}" data-txt="${key}" value="${esc(val)}"></div>`;
+}
+
+function formHTML() {
+  const slot = S.booking.slot ? new Date(S.booking.slot) : null;
+  const pick = slot
+    ? `<p class="picked">${icon('i-check')}<span>Vybráno: <b>${DOW[slot.getDay()]} ${slot.getDate()}. ${slot.getMonth() + 1}.</b> v <b>${pad2(slot.getHours())}:${pad2(slot.getMinutes())}</b></span></p>`
+    : `<p class="fine">Vyberte si čas výše a pak rezervaci potvrďte.</p>`;
+  return `<div class="bform">
+    ${pick}
+    <div class="ufrow">${uf('name', 'Jméno a příjmení', { autocomplete: 'name', placeholder: 'Jana Nováková' })}
+      ${uf('email', 'E-mail', { type: 'email', inputmode: 'email', autocomplete: 'email', placeholder: 'jana@email.cz' })}</div>
+    <div class="ufrow one">${uf('phone', 'Telefon', { type: 'tel', inputmode: 'tel', autocomplete: 'tel', placeholder: '+420 777 123 456' })}</div>
+    <p class="fine">Telefon potřebujeme na SMS připomínku 24 hodin před konzultací.</p>
+    <label class="cbox"><input type="checkbox" id="c-book" data-consent="bookConsent" ${S.a.bookConsent ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
+      <span>Souhlasím se zpracováním uvedených údajů za účelem rezervace konzultace a s tím, aby mě Aeternum Clinic v této věci kontaktovala.</span></label>
+    <button type="button" class="btn pri" id="bookBtn"${slot ? '' : ' disabled'}>Rezervovat termín</button>
+    <span class="err" id="bookErr" role="alert"></span></div>`;
+}
+
+function paymentHTML() {
+  const h = S.booking.hold, d = new Date(S.booking.slot);
+  return `<span class="eyebrow">Zbývá zaplatit</span><h3>Termín držíme pro Vás</h3>
+    <dl class="summ">
+      <dt>Termín</dt><dd>${DOW_SHORT[d.getDay()]} ${d.getDate()}. ${d.getMonth() + 1}. · ${pad2(d.getHours())}:${pad2(d.getMinutes())}</dd>
+      <dt>Forma</dt><dd>${S.booking.type === 'online' ? 'Online' : 'Osobně'}</dd>
+      <dt>Částka</dt><dd>${fmt(h.amount || CFG.price)} Kč</dd>
+    </dl>
+    <div class="hold"><span class="dot"></span><span>Termín Vám držíme 2 hodiny. Jakmile platba dorazí, pošleme Vám potvrzení a pozvánku do kalendáře.</span></div>
+    <div class="paybox">
+      ${h.checkoutUrl ? `<a class="btn pri" href="${esc(h.checkoutUrl)}">Zaplatit kartou / Apple Pay</a>
+      <p class="fine" style="text-align:center">Potvrzení máte hned, platbu zpracovává Stripe.</p>` : ''}
+      <div class="qrwrap"><div class="qr" id="payQr" aria-label="QR platba"></div>
+        <dl><dt>Částka</dt><dd>${fmt(h.amount || CFG.price)} Kč</dd>
+          <dt>Účet</dt><dd>${esc(h.account || '2801448429/2010')}</dd>
+          <dt>Var. symbol</dt><dd>${esc(h.vs)}</dd></dl></div>
+      <p class="fine">QR platbu spárujeme automaticky, obvykle do 15–30 minut.</p>
+    </div>
+    <div class="waiting"><span class="dot"></span><span>Čekáme na platbu…</span></div>`;
+}
+
+function rerender() {
+  $('#panel').innerHTML = panelHTML();
+  save();
+  if (S.booking.hold && !S.booking.paid) { showQr(); startPolling(); }
+}
+
+/* ---------- události ---------- */
+document.addEventListener('click', async e => {
+  const b = e.target.closest('button, a'); if (!b) return;
+  if (b.dataset.btype) { S.booking.type = b.dataset.btype; S.booking.slot = null; slotCache = null; rerender(); loadSlots(); return; }
+  if (b.dataset.day) { S.booking.day = b.dataset.day; S.booking.slot = null; rerender(); return; }
+  if (b.dataset.slot) { S.booking.slot = b.dataset.slot; rerender(); return; }
+  if (b.id === 'bookBtn') { await submitBooking(b); return; }
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset.txt) { S.a[t.dataset.txt] = t.value; const el = $('#bookErr'); if (el) el.textContent = ''; save(); }
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.consent) { S.a[t.dataset.consent] = t.checked; save(); }
+});
+
+/* ---------- termíny ---------- */
+async function loadSlots() {
+  if (!S.booking.type) return;
+  try {
+    slotCache = CFG.apiUrl ? ((await api('slots', { type: S.booking.type }, 20000)).slots || []) : demoSlots();
+  } catch (e) { slotCache = demoSlots(); }
+  rerender();
+}
+
+/* Záložní generátor termínů z CFG.hours — používá se, dokud není nasazený backend. */
+function demoSlots() {
+  const out = [];
+  const now = new Date();
+  const from = new Date(now.getTime() + CFG.minHours * 3600e3);
+  for (let dayOff = 0; dayOff <= CFG.leadDays; dayOff++) {
+    const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOff);
+    (CFG.hours[day.getDay()] || []).forEach(([a, z]) => {
+      const [ah, am] = a.split(':').map(Number), [zh, zm] = z.split(':').map(Number);
+      let t = new Date(day); t.setHours(ah, am, 0, 0);
+      const end = new Date(day); end.setHours(zh, zm, 0, 0);
+      while (t.getTime() + CFG.duration * 60e3 <= end.getTime()) {
+        if (t > from && (t.getDate() + t.getHours()) % 3 !== 0) out.push(localIso(t));
+        t = new Date(t.getTime() + CFG.slotStepMin * 60e3);
+      }
+    });
+  }
+  return out.slice(0, 120);
+}
+
+async function submitBooking(btn) {
+  const err = m => { const el = $('#bookErr'); if (el) el.textContent = m; };
+  err('');
+  if (!S.booking.slot) return err('Vyberte prosím čas konzultace.');
+  if (!S.a.name || !S.a.name.trim()) return err('Vyplňte prosím jméno a příjmení.');
+  if (!/\s/.test(S.a.name.trim())) return err('Doplňte prosím i příjmení.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((S.a.email || '').trim())) return err('Zadejte prosím platný e-mail.');
+  if (!/^\+?[\d\s]{9,16}$/.test((S.a.phone || '').trim())) return err('Telefon zadejte ve tvaru +420 777 123 456.');
+  if (!S.a.bookConsent) return err('Pro rezervaci je potřeba souhlas.');
+
+  btn.disabled = true; btn.textContent = 'Rezervuji…';
+  try {
+    let hold;
+    if (CFG.apiUrl) {
+      hold = await api('hold', {
+        id: S.screeningId, slot: S.booking.slot, type: S.booking.type,
+        name: S.a.name.trim(), email: S.a.email.trim(), phone: S.a.phone.trim(), consent: true, src: 'booking'
+      }, 45000);
+    } else {
+      const vs = String(Date.now()).slice(-8);
+      hold = { vs, amount: CFG.price, account: '2801448429/2010', spayd: spaydFor(vs, CFG.price), checkoutUrl: '' };
+    }
+    S.booking.hold = hold;
+    rerender();
+  } catch (x) {
+    btn.disabled = false; btn.textContent = 'Rezervovat termín';
+    err(x && x.code === 'slot_taken' ? 'Tento termín už je bohužel zabraný. Vyberte prosím jiný.' : 'Rezervaci se nepodařilo dokončit. Zkuste to prosím znovu, nebo nám zavolejte na ' + CFG.phone + '.');
+    if (x && x.code === 'slot_taken') { slotCache = null; S.booking.slot = null; loadSlots(); }
+  }
+}
+
+/* ---------- platba ---------- */
+function spaydFor(vs, amount) {
+  return 'SPD*1.0*ACC:' + CFG.iban + '*AM:' + Number(amount).toFixed(2) + '*CC:CZK*X-VS:' + vs + '*MSG:AETERNUM KONZULTACE*RN:AETERNUM CLINIC';
+}
+const QR_LIB = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+let qrPromise = null;
+function loadQrLib() {
+  if (!qrPromise) qrPromise = new Promise((ok, fail) => {
+    const s = document.createElement('script'); s.src = QR_LIB; s.async = true;
+    s.onload = ok; s.onerror = () => { qrPromise = null; fail(new Error('qr')); };
+    document.head.appendChild(s);
+  });
+  return qrPromise;
+}
+async function showQr() {
+  const box = $('#payQr'), h = S.booking.hold; if (!box || !h) return;
+  const payload = h.spayd || spaydFor(h.vs, h.amount || CFG.price);
+  try {
+    await loadQrLib();
+    const q = window.qrcode(0, 'M'); q.addData(payload); q.make();
+    box.innerHTML = q.createImgTag(5, 2, 'QR platba');
+  } catch (e) {
+    box.textContent = 'QR kód najdete v e-mailu.';
+    box.style.cssText = 'font-size:13px;color:#19191B;line-height:1.4;padding:16px;max-width:150px';
+  }
+}
+function startPolling() {
+  clearInterval(pollTimer);
+  if (!CFG.apiUrl || !S.booking.hold) return;
+  pollTimer = setInterval(async () => {
+    try {
+      const j = await api('payStatus', { vs: S.booking.hold.vs }, 15000);
+      if (j.paid) { clearInterval(pollTimer); S.booking.paid = true; rerender(); }
+      else if (j.expired) { clearInterval(pollTimer); S.booking.hold = null; S.booking.slot = null; slotCache = null; rerender(); loadSlots(); }
+    } catch (e) {}
+  }, CFG.pollMs);
+}
+
+/* ---------- backend ---------- */
+async function api(action, data, timeoutMs = 30000) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(CFG.apiUrl, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action, sid: S.sid, ...data }), signal: ctrl.signal
+    });
+    const j = await res.json();
+    if (!j.ok) { const e = new Error(j.error || 'api'); e.code = j.error; throw e; }
+    return j;
+  } finally { clearTimeout(t); }
+}
+
+/* Údaje ze screeningu, když přijde odkaz z e-mailu (?id=…). */
+async function prefill() {
+  if (!CFG.apiUrl || !S.screeningId || S.a.email) return;
+  try {
+    const j = await api('lookup', { id: S.screeningId }, 15000);
+    if (j.name && !S.a.name) S.a.name = j.name;
+    if (j.email && !S.a.email) S.a.email = j.email;
+    if (j.phone && !S.a.phone) S.a.phone = j.phone;
+    rerender();
+  } catch (e) { /* odkaz může být starý, formulář se vyplní ručně */ }
+}
+
+/* ---------- start ---------- */
+load();
+if (URLP.get('id')) S.screeningId = URLP.get('id');
+rerender();
+prefill();
+</script>
+</body>
+</html>
