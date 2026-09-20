@@ -209,6 +209,20 @@ input:autofill{background:transparent;color:var(--ink)}
 /* náznak, že se dny dají posouvat do strany */
 .days{-webkit-mask-image:linear-gradient(90deg,#000 92%,rgba(0,0,0,.25));mask-image:linear-gradient(90deg,#000 92%,rgba(0,0,0,.25))}
 .days::after{content:"";flex:none;width:2px}
+
+/* ── úpravy po kontrole na telefonu ── */
+.price-note{font-size:clamp(13px,calc(.95*var(--u)),calc(17px*var(--k)));color:var(--ink);font-weight:500;margin-top:10px;line-height:1.5}
+/* nadpis platby na jeden řádek, štítek pod něj */
+.payhead{flex-direction:column;align-items:flex-start;gap:8px}
+.payhead b{font-size:clamp(13.5px,calc(.98*var(--u)),calc(19px*var(--k)));white-space:nowrap}
+@media (max-width:400px){.payhead b{font-size:13px}}
+@media (max-width:760px){
+  /* „Termín držíme pro Vás“ na jeden řádek */
+  .panel h3{font-size:21px}
+  /* odmítnutí konzultace i s emoji na jeden řádek */
+  .decline .btn{font-size:11px;letter-spacing:.06em;white-space:nowrap;padding:14px 12px}
+}
+@media (max-width:380px){.decline .btn{font-size:10px}}
 </style>
 </head>
 <body>
@@ -323,12 +337,12 @@ function panelHTML() {
 
   return `<span class="eyebrow">Vstupní konzultace</span><h3>Rezervace termínu</h3>
     <div class="price"><b>${fmt(CFG.price)} Kč</b><span class="small-caps">${CFG.duration} minut</span></div>
-    <p class="fine" style="margin-top:10px">Částku ${fmt(CFG.price)} Kč Vám odečteme z ceny programu péče.</p>
+    <p class="price-note">Tuto částku Vám odečteme z ceny programu péče.</p>
     <div class="seg2" role="group" aria-label="Forma konzultace">
       <button type="button" data-btype="online" aria-pressed="${B.type === 'online'}">Online</button>
       <button type="button" data-btype="osobne" aria-pressed="${B.type === 'osobne'}">Osobně v Praze</button>
     </div>
-    ${B.type ? slotsHTML() : `<p class="fine" style="margin-top:16px">Vyberte formu konzultace a ukážeme Vám volné termíny.</p>`}`;
+    ${B.type ? slotsHTML() : `<p class="fine" style="margin-top:16px">Vyberte formu konzultace pro zobrazení volných termínů.</p>`}`;
 }
 
 function slotsHTML() {
@@ -389,13 +403,13 @@ function paymentHTML() {
     <div class="paychoice">
       <p class="small-caps" style="margin-bottom:12px">Vyberte způsob platby</p>
       ${h.checkoutUrl ? `<div class="payopt">
-        <div class="payhead"><b>Kartou, Apple Pay nebo Google Pay</b><span class="paytag fast">Potvrzení hned</span></div>
+        <div class="payhead"><b>Kartou, Apple Pay nebo Google Pay</b><span class="paytag fast">Rezervace termínu ihned</span></div>
         <a class="btn pri" href="${esc(h.checkoutUrl)}" onclick="this.textContent='Přesměrováváme…';this.style.pointerEvents='none'">Zaplatit kartou</a>
         <p class="fine" style="margin-top:10px">Přesměrujeme Vás na zabezpečenou platební bránu Stripe. Po zaplacení je termín okamžitě potvrzený.</p>
       </div>
       <div class="paysep">nebo</div>` : ''}
       <div class="payopt">
-        <div class="payhead"><b>Převodem přes QR kód</b><span class="paytag slow">Do 10 minut</span></div>
+        <div class="payhead"><b>Převodem přes QR kód</b><span class="paytag slow">Do 5 minut</span></div>
         <div class="qrwrap"><div class="qr" id="payQr" aria-label="QR platba"></div>
           <dl><dt>Částka</dt><dd>${fmt(h.amount || CFG.price)} Kč</dd>
             <dt>Účet</dt><dd>${esc(h.account || '2801448429/2010')}</dd>
