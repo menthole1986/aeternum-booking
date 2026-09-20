@@ -107,9 +107,9 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 input:autofill{background:transparent;color:var(--ink)}
 
 
-.cbox{position:relative;display:flex;gap:14px;align-items:flex-start;cursor:pointer;font-size:clamp(13px,calc(.8*var(--u)),calc(15px*var(--k)));line-height:1.6;color:var(--muted)}
+.cbox{position:relative;display:flex;gap:12px;align-items:flex-start;cursor:pointer;font-size:clamp(11.5px,calc(.72*var(--u)),calc(14px*var(--k)));line-height:1.55;color:var(--muted)}
 .cbox input{position:absolute;opacity:0;width:1px;height:1px}
-.cbox .box{width:26px;height:26px;border-radius:8px;border:1.5px solid rgba(255,255,255,.35);flex:none;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.cbox .box{width:23px;height:23px;border-radius:8px;border:1.5px solid rgba(255,255,255,.35);flex:none;display:flex;align-items:center;justify-content:center;margin-top:1px}
 .cbox .box svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:0}
 .cbox input:checked + .box{background:var(--grad);border-color:transparent}
 .cbox input:checked + .box svg{opacity:1}
@@ -187,6 +187,28 @@ input:autofill{background:transparent;color:var(--ink)}
   /* hlavička na malém telefonu: necháváme jen novou rezervaci, odkaz na web je v patičce */
   .top-actions a.linkbtn{display:none}
 }
+
+/* ── mobilní ergonomie ── */
+@media (max-width:760px){
+  /* pod spodní lištou iPhonu nesmí nic mizet */
+  .foot{padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+  .disclaimer{padding-bottom:calc(30px + env(safe-area-inset-bottom))}
+  /* prsty potřebují víc plochy */
+  .time{height:52px}
+  .day{padding:12px 14px}
+  .rowopt{min-height:56px}
+  .opt{height:58px}
+  .cbox{padding:4px 0}
+  .legal summary{padding:10px 0}
+  .more{padding:10px 0}
+  /* vzdušnější odstup mezi Marcelem a otázkou */
+  .mhead{margin-bottom:6px}
+  .qcount.mob{margin-top:20px}
+  .qcount.mob + .qtext{margin-top:16px}
+}
+/* náznak, že se dny dají posouvat do strany */
+.days{-webkit-mask-image:linear-gradient(90deg,#000 92%,rgba(0,0,0,.25));mask-image:linear-gradient(90deg,#000 92%,rgba(0,0,0,.25))}
+.days::after{content:"";flex:none;width:2px}
 </style>
 </head>
 <body>
