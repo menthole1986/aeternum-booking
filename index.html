@@ -106,7 +106,7 @@ main > .screen{width:100%;animation:rise .4s ease both}
 .bform{display:flex;flex-direction:column;gap:clamp(16px,calc(1.4*var(--u)),calc(26px*var(--k)));margin-top:clamp(20px,calc(1.6*var(--u)),calc(30px*var(--k)))}
 .picked{display:flex;gap:10px;align-items:center;font-size:clamp(13px,calc(.92*var(--u)),calc(17px*var(--k)));color:var(--ink)}
 .picked svg{width:18px;height:18px;flex:none;stroke:var(--good);fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
-.hold{display:flex;gap:12px;align-items:flex-start;margin-top:18px;padding:14px 16px;border-radius:16px;border:1px solid rgba(242,180,90,.35);background:rgba(242,180,90,.07);font-size:clamp(13px,calc(.9*var(--u)),calc(16px*var(--k)));line-height:1.55;color:var(--ink)}
+.hold{display:flex;gap:12px;align-items:flex-start;margin-top:18px;padding:14px 16px;border-radius:16px;border:1px solid rgba(242,180,90,.35);background:rgba(242,180,90,.07);font-size:clamp(13px,calc(.9*var(--u)),calc(16px*var(--k)));line-height:1.55;color:var(--warn)}
 .hold .dot{width:8px;height:8px;border-radius:50%;background:var(--warn);flex:none;margin-top:.5em;animation:breathe 1.6s ease-in-out infinite}
 @keyframes breathe{0%,100%{transform:scale(.92);opacity:.6}50%{transform:scale(1.08);opacity:1}}
 .summ{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;margin:18px 0 0;font-size:clamp(14px,calc(.95*var(--u)),calc(18px*var(--k)))}
@@ -295,7 +295,7 @@ function paymentHTML() {
           <dl><dt>Částka</dt><dd>${fmt(h.amount || CFG.price)} Kč</dd>
             <dt>Účet</dt><dd>${esc(h.account || '2801448429/2010')}</dd>
             <dt>Var. symbol</dt><dd>${esc(h.vs)}</dd></dl></div>
-        <p class="fine" style="margin-top:12px">Naskenujte QR kód v bankovní aplikaci. Platbu spárujeme automaticky, obvykle do 15–30 minut.</p>
+        <p class="fine" style="margin-top:12px">Naskenujte QR kód v bankovní aplikaci. Zvolte možnost okamžité platby. Platbu obdržíme obvykle ihned.</p>
       </div>
     </div>
     <div class="waiting"><span class="dot"></span><span>Čekáme na platbu…</span></div>`;
