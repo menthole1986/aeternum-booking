@@ -335,6 +335,25 @@ function demoSlots() {
   return out.slice(0, 120);
 }
 
+const BOOK_ERRORS = {
+  slot_taken: 'Tento termín už je bohužel zabraný. Vyberte prosím jiný.',
+  slot_past: 'Tento termín je příliš brzy. Vyberte prosím pozdější.',
+  bad_slot: 'S termínem se něco pokazilo. Vyberte ho prosím znovu.',
+  bad_name: 'Vyplňte prosím jméno i příjmení.',
+  bad_email: 'Zadejte prosím platný e-mail.',
+  bad_phone: 'Telefon zadejte ve tvaru +420 777 123 456.',
+  no_consent: 'Pro rezervaci je potřeba souhlas.',
+  busy: 'Zrovna teď rezervuje někdo jiný. Zkuste to prosím za chvíli.',
+  sheet_missing: 'Rezervační systém se právě připravuje. Zavolejte nám prosím na ',
+  calendar_missing: 'Rezervační systém se právě připravuje. Zavolejte nám prosím na ',
+  rate_limited: 'Příliš mnoho pokusů. Zkuste to prosím za chvíli.'
+};
+function bookError(x) {
+  const code = x && x.code;
+  const m = BOOK_ERRORS[code];
+  if (m) return m.endsWith(' ') ? m + CFG.phone + '.' : m;
+  return 'Rezervaci se nepodařilo dokončit. Zkuste to prosím znovu, nebo nám zavolejte na ' + CFG.phone + '.';
+}
 async function submitBooking(btn) {
   const err = m => { const el = $('#bookErr'); if (el) el.textContent = m; };
   err('');
@@ -357,11 +376,12 @@ async function submitBooking(btn) {
       const vs = String(Date.now()).slice(-8);
       hold = { vs, amount: CFG.price, account: '2801448429/2010', spayd: spaydFor(vs, CFG.price), checkoutUrl: '' };
     }
+    if (!hold || !hold.vs) throw Object.assign(new Error('no_vs'), { code: 'no_vs' });
     S.booking.hold = hold;
     rerender();
   } catch (x) {
     btn.disabled = false; btn.textContent = 'Rezervovat termín';
-    err(x && x.code === 'slot_taken' ? 'Tento termín už je bohužel zabraný. Vyberte prosím jiný.' : 'Rezervaci se nepodařilo dokončit. Zkuste to prosím znovu, nebo nám zavolejte na ' + CFG.phone + '.');
+    err(bookError(x));
     if (x && x.code === 'slot_taken') { slotCache = null; S.booking.slot = null; loadSlots(); }
   }
 }
