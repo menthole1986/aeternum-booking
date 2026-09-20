@@ -185,7 +185,7 @@ input:autofill{background:transparent;color:var(--ink)}
       <h1 class="h-l">Vstupní<br><span class="light">konzultace</span></h1>
       <p class="lead" style="margin-top:clamp(16px,calc(1.4*var(--u)),calc(28px*var(--k)))">S koordinátorem péče společně proberete:</p>
       <div class="bul"><div>Individuální nastavení Vašeho programu</div><div>Podmínky smlouvy o programu péče</div><div>Možnosti financování programu</div></div>
-      <p class="fine" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">Konzultace trvá 30 minut a proběhne online, nebo osobně v Praze. Rezervace je platná po uhrazení poplatku.</p>
+      <p class="fine" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">Konzultace trvá 30 minut a proběhne online, nebo osobně v Praze. Rezervace je platná po uhrazení poplatku, který Vám odečteme z ceny programu péče.</p>
     </div>
     <div class="panel" id="panel"></div>
   </div></div></main>
@@ -202,7 +202,7 @@ input:autofill{background:transparent;color:var(--ink)}
 const URLP = new URLSearchParams(location.search);
 const CFG = {
   apiUrl: 'https://script.google.com/macros/s/AKfycby5mSooRjSpT8CUoaQzhJLW60VzvJwva3e7nLnlLqDBG5FsKBdp70ykk9wO9fE5130p/exec',                                   // webová aplikace z aeternum_screening_apps_script.gs
-  price: 490,
+  price: 570,
   duration: 30,
   holdMinutes: 120,
   leadDays: 14,
@@ -274,6 +274,7 @@ function panelHTML() {
 
   return `<span class="eyebrow">Vstupní konzultace</span><h3>Rezervace termínu</h3>
     <div class="price"><b>${fmt(CFG.price)} Kč</b><span class="small-caps">${CFG.duration} minut</span></div>
+    <p class="fine" style="margin-top:10px">Částku ${fmt(CFG.price)} Kč Vám odečteme z ceny programu péče.</p>
     <div class="seg2" role="group" aria-label="Forma konzultace">
       <button type="button" data-btype="online" aria-pressed="${B.type === 'online'}">Online</button>
       <button type="button" data-btype="osobne" aria-pressed="${B.type === 'osobne'}">Osobně v Praze</button>
