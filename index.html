@@ -172,6 +172,21 @@ input:autofill{background:transparent;color:var(--ink)}
 .success .tick svg{width:44%;height:44%;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
 .disclaimer{padding:clamp(22px,calc(2.3*var(--u)),calc(44px*var(--k))) var(--gut) clamp(30px,calc(3*var(--u)),calc(60px*var(--k)));font-size:clamp(10px,calc(.62*var(--u)),calc(12px*var(--k)));color:var(--dim);line-height:1.6;border-top:1px solid rgba(255,255,255,.08);position:relative;z-index:1}
 @media (max-width:760px){.panel{padding:22px 18px;border-radius:22px}.seg2 button{height:50px;font-size:14px}.h-l{font-size:28px}}
+
+/* ── doladění pro telefon ── */
+@media (max-width:760px){
+  .top-actions .linkbtn{font-size:10px;letter-spacing:.14em}
+  .btn{white-space:normal;height:auto;min-height:54px;padding:14px 22px;line-height:1.25;letter-spacing:.14em;text-align:center}
+  .btn.sm{min-height:44px;padding:10px 16px}
+  .send-status{overflow-wrap:anywhere}
+  .send-status b{overflow-wrap:anywhere}
+  .uf input{overflow-wrap:anywhere}
+  .summ dd,.qrwrap dd{overflow-wrap:anywhere}
+}
+@media (max-width:560px){
+  /* hlavička na malém telefonu: necháváme jen novou rezervaci, odkaz na web je v patičce */
+  .top-actions a.linkbtn{display:none}
+}
 </style>
 </head>
 <body>
@@ -200,7 +215,7 @@ input:autofill{background:transparent;color:var(--ink)}
     </div>
     <div class="panel" id="panel"></div>
   </div></div></main>
-  <div class="disclaimer">Aeternum Clinic · My Design Creatives s.r.o. · IČO 07162235 · Chlumčanského 497/5, 180 00 Praha 8 · info@aeternumclinic.cz · +420 775 481 700 · <a href="https://www.aeternumclinic.cz/terms-conditions" target="_blank" rel="noopener" style="color:var(--dim)">Zásady zpracování osobních údajů</a></div>
+  <div class="disclaimer">Aeternum Clinic · My Design Creatives s.r.o. · IČO 07162235 · Chlumčanského 497/5, 180 00 Praha 8 · info@aeternumclinic.cz · +420 775 481 700 · <a href="https://www.aeternumclinic.cz" target="_blank" rel="noopener" style="color:var(--dim)">aeternumclinic.cz</a> · <a href="https://www.aeternumclinic.cz/terms-conditions" target="_blank" rel="noopener" style="color:var(--dim)">Zásady zpracování osobních údajů</a></div>
 </div>
 
 <script>
