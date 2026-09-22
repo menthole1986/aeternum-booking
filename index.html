@@ -66,6 +66,10 @@ main > .screen{width:100%;animation:rise .4s ease both}
 .btn:active{transform:scale(.98)}
 .btn.pri{background:var(--grad);color:#fff}
 .btn.pri:hover{filter:brightness(1.12)}
+.btn.ghost{background:transparent;border:1.5px solid rgba(255,255,255,.28);color:var(--ink)}
+.btn.ghost:hover{border-color:rgba(255,255,255,.55)}
+.btn.soft-crit{background:rgba(238,122,109,.12);border:1.5px solid rgba(238,122,109,.45);color:#F0A49B}
+.btn.soft-crit:hover{background:rgba(238,122,109,.2);border-color:rgba(238,122,109,.7)}
 .btn[disabled]{opacity:.38;cursor:default}
 .err{font-size:clamp(13px,calc(.85*var(--u)),calc(16px*var(--k)));color:var(--crit);font-weight:600}
 .err:empty{display:none}
@@ -293,7 +297,7 @@ const icon = id => `<svg aria-hidden="true"><use href="#${id}"/></svg>`;
 const localIso = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 
 const newSid = () => (self.crypto && crypto.randomUUID) ? crypto.randomUUID() : Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
-const blank = () => ({ sid: newSid(), screeningId: URLP.get('id') || '', a: {}, booking: { type: null, slot: null, day: null } });
+const blank = () => ({ sid: newSid(), screeningId: URLP.get('id') || '', a: {}, booking: { type: null, slot: null, day: null }, manage: null });
 let S = blank();
 function save() { try { sessionStorage.setItem(CFG.storageKey, JSON.stringify(S)); } catch (e) {} }
 function load() { try { const raw = sessionStorage.getItem(CFG.storageKey); if (raw) S = Object.assign(blank(), JSON.parse(raw)); } catch (e) {} }
@@ -327,6 +331,7 @@ function verifyHTML() {
 
 function panelHTML() {
   const B = S.booking;
+  if (S.manage) return managePanelHTML();
   if (B.paid) {
     const d = new Date(B.slot);
     return `<div class="success"><div class="tick">${icon('i-check')}</div><span class="eyebrow">Potvrzeno</span>
@@ -348,7 +353,7 @@ function panelHTML() {
     ${B.type ? slotsHTML() : `<p class="fine" style="margin-top:16px">Vyberte formu konzultace pro zobrazení volných termínů.</p>`}`;
 }
 
-function slotsHTML() {
+function slotsHTML(withForm = true) {
   if (!slotCache) {
     loadSlots();
     return `<div class="skel-days">${[0,1,2,3,4,5,6].map(() => '<div class="skel"></div>').join('')}</div>
@@ -368,7 +373,7 @@ function slotsHTML() {
       const dt = new Date(t);
       return `<button type="button" class="time" data-slot="${t}" aria-pressed="${S.booking.slot === t}">${pad2(dt.getHours())}:${pad2(dt.getMinutes())}</button>`;
     }).join('')}</div>
-    ${formHTML()}`;
+    ${withForm ? formHTML() : ''}`;
 }
 
 function uf(key, label, o = {}) {
@@ -428,6 +433,104 @@ function rerender() {
   if (S.booking.hold && !S.booking.paid) { showQr(); startPolling(); }
 }
 
+async function submitReschedule(btn) {
+  const M = S.manage, slot = S.booking.slot;
+  if (!slot) return;
+  const err = m => { const el = $('#manageErr'); if (el) el.textContent = m; };
+  err(''); btn.disabled = true; btn.textContent = 'Přesouváme…';
+  try {
+    const j = await api('reschedule', { vs: M.vs, t: M.t, slot }, 30000);
+    S.manage = Object.assign({}, M, { done: 'reschedule', slot: j.slot || slot });
+    S.booking.slot = null;
+    rerender();
+  } catch (x) {
+    btn.disabled = false; btn.textContent = 'Přesunout termín';
+    err(manageError(x));
+    if (x && x.code === 'slot_taken') { slotCache = null; S.booking.slot = null; loadSlots(); }
+  }
+}
+
+async function submitCancel(btn) {
+  const M = S.manage;
+  const err = m => { const el = $('#manageErr'); if (el) el.textContent = m; };
+  err(''); btn.disabled = true; btn.textContent = 'Rušíme…';
+  try {
+    await api('cancel', { vs: M.vs, t: M.t }, 30000);
+    S.manage = Object.assign({}, M, { done: 'cancel' });
+    rerender();
+  } catch (x) {
+    btn.disabled = false; btn.textContent = 'Ano, zrušit termín';
+    err(manageError(x));
+  }
+}
+
+/* ---------- správa termínu z odkazu v e-mailu ---------- */
+const MANAGE_ERRORS = {
+  bad_token: 'Odkaz už neplatí. Napište nám, termín vyřešíme.',
+  not_found: 'Rezervaci se nepodařilo najít.',
+  too_late: 'Termín je příliš blízko. Zavolejte nám prosím, domluvíme se.',
+  slot_taken: 'Tento termín už je bohužel zabraný. Vyberte prosím jiný.',
+  bad_status: 'Tuto rezervaci už nejde měnit.'
+};
+const manageError = x => MANAGE_ERRORS[x && x.code] || ('Nepodařilo se to. Zkuste to prosím znovu, nebo zavolejte na ' + CFG.phone + '.');
+
+function manageWhen(iso) {
+  const d = new Date(iso);
+  return `${DOW[d.getDay()]} ${d.getDate()}. ${MON[d.getMonth()]}, ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+
+function managePanelHTML() {
+  const M = S.manage;
+  if (M.loading) return `<span class="eyebrow">Váš termín</span><h3>Načítáme rezervaci…</h3>`;
+  if (M.gone) return `<span class="eyebrow">Váš termín</span><h3>Rezervaci nenajdeme</h3>
+    <p class="lead" style="margin-top:14px">${esc(M.err || 'Odkaz už neplatí.')}</p>
+    <p class="fine" style="margin-top:14px">Zavolejte nám na ${esc(CFG.phone)} nebo napište na ${esc(CFG.email || 'info@aeternumclinic.cz')}.</p>
+    <button type="button" class="btn ghost" style="margin-top:18px" data-act="restart">Nová rezervace</button>`;
+  if (M.done === 'cancel') return `<div class="success"><div class="tick">${icon('i-check')}</div><span class="eyebrow">Zrušeno</span>
+    <h3>Termín jsme zrušili</h3>
+    <p class="lead" style="margin-top:14px">Potvrzení jsme poslali e-mailem. Uhrazený poplatek nepropadá, převedeme ho na nový termín.</p>
+    <button type="button" class="btn pri" style="margin-top:20px" data-act="restart">Vybrat nový termín</button></div>`;
+  if (M.done === 'reschedule') return `<div class="success"><div class="tick">${icon('i-check')}</div><span class="eyebrow">Přesunuto</span>
+    <h3>Nový termín je Váš</h3>
+    <p class="lead" style="margin-top:14px">${esc(manageWhen(M.slot))} — ${M.type === 'online' ? 'online' : 'osobně v Praze'}.</p>
+    <p class="lead" style="margin-top:12px">Potvrzení a novou pozvánku do kalendáře jsme poslali e-mailem.</p></div>`;
+
+  const head = `<span class="eyebrow">Váš termín</span><h3>${esc(manageWhen(M.slot))}</h3>
+    <p class="lead" style="margin-top:12px">${M.type === 'online' ? 'Online' : 'Osobně v Praze'} · ${CFG.duration} minut${M.status === 'čeká na platbu' ? ' · čeká na úhradu' : ''}</p>`;
+
+  if (!M.changeable) return head +
+    `<p class="fine" style="margin-top:18px">Termín už online měnit nejde, protože do konzultace zbývá méně než ${M.minHours} hodin. Zavolejte nám na ${esc(CFG.phone)} a domluvíme se.</p>`;
+
+  if (M.mode === 'reschedule') return head + `<p class="small-caps" style="margin-top:22px">Vyberte nový termín</p>
+    ${slotsHTML(false)}
+    ${S.booking.slot ? `<p class="picked">${icon('i-check')}<span>Nově: <b>${esc(manageWhen(S.booking.slot))}</b></span></p>` : ''}
+    <button type="button" class="btn pri" id="reschedBtn" style="margin-top:18px"${S.booking.slot ? '' : ' disabled'}>Přesunout termín</button>
+    <button type="button" class="btn ghost" style="margin-top:10px" data-act="mcancelmode">Zpět</button>
+    <span class="err" id="manageErr" role="alert"></span>`;
+
+  if (M.mode === 'cancel') return head + `<p class="lead" style="margin-top:20px">Opravdu termín zrušit? Uhrazený poplatek nepropadá, převedeme ho na nový termín.</p>
+    <button type="button" class="btn soft-crit" id="cancelBtn" style="margin-top:18px">Ano, zrušit termín</button>
+    <button type="button" class="btn ghost" style="margin-top:10px" data-act="mcancelmode">Zpět</button>
+    <span class="err" id="manageErr" role="alert"></span>`;
+
+  return head + `<button type="button" class="btn pri" style="margin-top:22px" data-act="mreschedule">Přesunout termín</button>
+    <button type="button" class="btn ghost" style="margin-top:10px" data-act="mcancel">Zrušit rezervaci</button>
+    <p class="fine" style="margin-top:16px">Změnit termín jde do ${M.minHours} hodin před konzultací. Potom nám zavolejte na ${esc(CFG.phone)}.</p>`;
+}
+
+async function loadManage(vs, t) {
+  S.manage = { vs, t, loading: true };
+  rerender();
+  try {
+    const j = await api('booking', { vs, t }, 20000);
+    S.manage = Object.assign({ vs, t }, j);
+    S.booking.type = j.type;
+  } catch (x) {
+    S.manage = { vs, t, gone: true, err: manageError(x) };
+  }
+  rerender();
+}
+
 /* ---------- události ---------- */
 document.addEventListener('click', async e => {
   const b = e.target.closest('button, a'); if (!b) return;
@@ -436,6 +539,11 @@ document.addEventListener('click', async e => {
   if (b.dataset.day) { S.booking.day = b.dataset.day; S.booking.slot = null; rerender(); return; }
   if (b.dataset.slot) { S.booking.slot = b.dataset.slot; rerender(); return; }
   if (b.id === 'bookBtn') { await submitBooking(b); return; }
+  if (b.dataset.act === 'mreschedule') { S.manage.mode = 'reschedule'; S.booking.slot = null; S.booking.day = null; slotCache = null; rerender(); loadSlots(); return; }
+  if (b.dataset.act === 'mcancel') { S.manage.mode = 'cancel'; rerender(); return; }
+  if (b.dataset.act === 'mcancelmode') { S.manage.mode = null; rerender(); return; }
+  if (b.id === 'reschedBtn') { await submitReschedule(b); return; }
+  if (b.id === 'cancelBtn') { await submitCancel(b); return; }
 });
 document.addEventListener('input', e => {
   const t = e.target;
@@ -639,6 +747,9 @@ if (URLP.get('id')) S.screeningId = URLP.get('id');
 
 // Návrat z platební brány: hned ukážeme ověřování, i když o rezervaci nic nevíme
 // (třeba když platba začala na screeningu).
+const manageVs = URLP.get('vs'), manageT = URLP.get('t');
+if (manageVs && manageT) { S.booking = { type: null, slot: null, day: null }; loadManage(manageVs, manageT); }
+
 const paidVs = URLP.get('paid');
 if (paidVs && !S.booking.paid) {
   if (!S.booking.hold || S.booking.hold.vs !== paidVs) S.booking.hold = { vs: paidVs, amount: CFG.price };
