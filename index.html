@@ -254,7 +254,7 @@ input:autofill{background:transparent;color:var(--ink)}
       <h1 class="h-l">Vstupní<br><span class="light">konzultace</span></h1>
       <p class="lead" style="margin-top:clamp(16px,calc(1.4*var(--u)),calc(28px*var(--k)))">S koordinátorem péče, se kterým společně proberete:</p>
       <div class="bul"><div>Individuální nastavení Vašeho programu</div><div>Podmínky smlouvy o programu péče</div><div>Možnosti financování programu</div></div>
-      <p class="fine" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">Konzultace trvá 30 minut a proběhne online, nebo osobně v Praze. Rezervace je platná po uhrazení poplatku, který Vám odečteme z ceny programu péče.</p>
+      <p class="fine" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">Konzultace trvá 30 minut a proběhne online, nebo osobně v Praze. Rezervace je platná po uhrazení poplatku.</p>
     </div>
     <div class="panel" id="panel"></div>
   </div></div></main>
@@ -277,9 +277,9 @@ const CFG = {
   leadDays: 14,
   minHours: 24,
   slotStepMin: 60,
-  hours: {                                      // záloha, dokud neodpovídá backend
-    1: [['11:00', '19:00']], 2: [['07:00', '10:00']], 3: [['12:00', '19:00']],
-    4: [['07:00', '10:00']], 5: [['12:00', '18:00']], 6: [['17:00', '19:00']], 0: [['11:00', '13:00']]
+  hours: {                                      // záložní hodiny pro demo režim, ostré řídí kalendář
+    0: [['11:00', '13:00']], 1: [['11:00', '14:00']], 2: [['07:00', '09:00'], ['11:00', '14:00']],
+    3: [['11:00', '14:00']], 4: [['07:00', '09:00'], ['11:00', '14:00']], 5: [['11:00', '14:00']], 6: []
   },
   iban: 'CZ5020100000002801448429',
   phone: '+420775481700',
@@ -338,14 +338,15 @@ function panelHTML() {
       <h3>Termín je Váš</h3>
       <p class="lead" style="margin-top:14px">${esc(DOW[d.getDay()])} ${d.getDate()}. ${esc(MON[d.getMonth()])}, ${pad2(d.getHours())}:${pad2(d.getMinutes())} — ${B.type === 'online' ? 'online' : 'osobně v Praze'}.</p>
       <p class="lead" style="margin-top:12px">Potvrzení a pozvánku do kalendáře jsme poslali na <b style="color:var(--ink)">${esc(S.a.email)}</b>. Den před konzultací Vám přijde SMS připomínka.</p>
-      <p class="fine" style="margin-top:16px">Potřebujete termín změnit? Zavolejte nám na ${esc(CFG.phone)}.</p></div>`;
+      ${B.manageUrl ? `<a class="btn ghost" href="${esc(B.manageUrl)}" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">Přesunout nebo zrušit termín</a>` : ''}
+      <p class="fine" style="margin-top:14px">Změnit termín jde nejpozději ${B.minHours || 24} hodin předem. Při pozdějším zrušení nebo neúčasti poplatek propadá a je potřeba rezervovat nový termín.</p></div>`;
   }
   if (S.verifying && B.hold) return verifyHTML();
   if (B.hold) return paymentHTML();
 
   return `<span class="eyebrow">Vstupní konzultace</span><h3>Rezervace termínu</h3>
     <div class="price"><b>${fmt(CFG.price)} Kč</b><span class="small-caps">${CFG.duration} minut</span></div>
-    <p class="price-note">Částka bude odečtena z ceny programu.</p>
+    <p class="price-note">Poplatek za čas koordinátora a přípravu na Váš případ.</p>
     <div class="seg2" role="group" aria-label="Forma konzultace">
       <button type="button" data-btype="online" aria-pressed="${B.type === 'online'}">Online</button>
       <button type="button" data-btype="osobne" aria-pressed="${B.type === 'osobne'}">Osobně v Praze</button>
@@ -685,6 +686,8 @@ function startPolling() {
         if (j.slot) S.booking.slot = j.slot;
         if (j.type) S.booking.type = j.type;
         if (j.meet) S.booking.meet = j.meet;
+        if (j.manageUrl) S.booking.manageUrl = j.manageUrl;
+        if (j.minHours) S.booking.minHours = j.minHours;
         if (j.email && !S.a.email) S.a.email = j.email;
         rerender();
       } else if (j.expired) {
