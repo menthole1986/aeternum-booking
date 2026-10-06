@@ -339,7 +339,7 @@ function panelHTML() {
       <p class="lead" style="margin-top:14px">${esc(DOW[d.getDay()])} ${d.getDate()}. ${esc(MON[d.getMonth()])}, ${pad2(d.getHours())}:${pad2(d.getMinutes())} — ${B.type === 'online' ? 'online' : 'osobně v Praze'}.</p>
       <p class="lead" style="margin-top:12px">Potvrzení a pozvánku do kalendáře jsme poslali na <b style="color:var(--ink)">${esc(S.a.email)}</b>. Den před konzultací Vám přijde SMS připomínka.</p>
       ${B.manageUrl ? `<a class="btn ghost" href="${esc(B.manageUrl)}" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">Přesunout nebo zrušit termín</a>` : ''}
-      <p class="fine" style="margin-top:14px">Změnit termín jde nejpozději ${B.minHours || 24} hodin předem. Při pozdějším zrušení nebo neúčasti poplatek propadá a je potřeba rezervovat nový termín.</p></div>`;
+      <p class="fine" style="margin-top:14px">Termín si můžete přesunout nebo zrušit až do hodiny před začátkem. Poplatek propadá jen tehdy, když se bez omluvy nedostavíte.</p></div>`;
   }
   if (S.verifying && B.hold) return verifyHTML();
   if (B.hold) return paymentHTML();
@@ -500,7 +500,7 @@ function managePanelHTML() {
     <p class="lead" style="margin-top:12px">${M.type === 'online' ? 'Online' : 'Osobně v Praze'} · ${CFG.duration} minut${M.status === 'čeká na platbu' ? ' · čeká na úhradu' : ''}</p>`;
 
   if (!M.changeable) return head +
-    `<p class="fine" style="margin-top:18px">Termín už online měnit nejde, protože do konzultace zbývá méně než ${M.minHours} hodin. Zavolejte nám na ${esc(CFG.phone)} a domluvíme se.</p>`;
+    `<p class="fine" style="margin-top:18px">Termín už online měnit nejde, protože do konzultace zbývá méně než hodina. Zavolejte nám na ${esc(CFG.phone)} a domluvíme se.</p>`;
 
   if (M.mode === 'reschedule') return head + `<p class="small-caps" style="margin-top:22px">Vyberte nový termín</p>
     ${slotsHTML(false)}
@@ -516,7 +516,7 @@ function managePanelHTML() {
 
   return head + `<button type="button" class="btn pri" style="margin-top:22px" data-act="mreschedule">Přesunout termín</button>
     <button type="button" class="btn ghost" style="margin-top:10px" data-act="mcancel">Zrušit rezervaci</button>
-    <p class="fine" style="margin-top:16px">Změnit termín jde do ${M.minHours} hodin před konzultací. Potom nám zavolejte na ${esc(CFG.phone)}.</p>`;
+    <p class="fine" style="margin-top:16px">Změnit termín jde až do hodiny před začátkem. Potom nám zavolejte na ${esc(CFG.phone)}.</p>`;
 }
 
 async function loadManage(vs, t) {
