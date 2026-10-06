@@ -278,8 +278,8 @@ const CFG = {
   minHours: 24,
   slotStepMin: 60,
   hours: {                                      // záložní hodiny pro demo režim, ostré řídí kalendář
-    0: [['11:00', '13:00']], 1: [['11:00', '14:00']], 2: [['07:00', '09:00'], ['11:00', '14:00']],
-    3: [['11:00', '14:00']], 4: [['07:00', '09:00'], ['11:00', '14:00']], 5: [['11:00', '14:00']], 6: []
+    0: [['11:00', '14:00']], 1: [['11:00', '13:00'], ['18:00', '20:00']], 2: [['07:00', '09:00'], ['11:00', '14:00']],
+    3: [['11:00', '14:00']], 4: [], 5: [], 6: [['11:00', '14:00']]
   },
   iban: 'CZ5020100000002801448429',
   phone: '+420775481700',
@@ -771,6 +771,39 @@ if (paidVs && !S.booking.paid) {
 rerender();
 if (S.verifying) startPolling();
 prefill();
+
+/* ---------- české sirotky ----------------------------------------------
+   Jednopísmenné předložky a spojky (k, s, v, z, o, u, a, i) ani krátké
+   předložky typu „na“ nebo „do“ nesmí zůstat viset na konci řádku. Stejně
+   tak se nemá rozpadnout číslo od jednotky („30 minut“, „5 170 Kč“).
+   Běží i nad obsahem, který se dokresluje později. */
+const ORPHAN_RE = /(^|[\s(„"'»–—])((?:[aiksuvozAIKSUVOZ]|[Dd]o|[Nn]a|[Pp]o|[Zz]a|[Oo]d|[Vv]e|[Zz]e|[Ss]e|[Kk]e|[Pp]ro|[Pp]ři|[Bb]ez|[Nn]ad|[Pp]od|[Žž]e)) /g;
+function fixTextNode(n) {
+  const t = n.data.replace(ORPHAN_RE, '$1$2 ').replace(/(\d) (?=\S)/g, '$1 ');
+  if (t !== n.data) n.data = t;
+}
+function fixOrphans(root) {
+  if (!root) return;
+  if (root.nodeType === 3) { fixTextNode(root); return; }
+  if (root.nodeType !== 1 && root.nodeType !== 9 && root.nodeType !== 11) return;
+  const skip = { SCRIPT: 1, STYLE: 1, TEXTAREA: 1, SVG: 1, CODE: 1 };
+  const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: n => {
+      const p = n.parentNode;
+      if (!p || skip[p.nodeName]) return NodeFilter.FILTER_REJECT;
+      return n.data.indexOf(' ') < 0 ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  const out = [];
+  for (let n = walk.nextNode(); n; n = walk.nextNode()) out.push(n);
+  out.forEach(fixTextNode);
+}
+try {
+  fixOrphans(document.body);
+  new MutationObserver(ms => {
+    ms.forEach(m => m.addedNodes.forEach(fixOrphans));
+  }).observe(document.body, { childList: true, subtree: true });
+} catch (e) { /* bez tohohle stránka funguje dál, jen se hůř láme */ }
 </script>
 </body>
 </html>
