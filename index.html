@@ -338,7 +338,9 @@ function panelHTML() {
       <h3>Termín je Váš</h3>
       <p class="lead" style="margin-top:14px">${esc(DOW[d.getDay()])} ${d.getDate()}. ${esc(MON[d.getMonth()])}, ${pad2(d.getHours())}:${pad2(d.getMinutes())} — ${B.type === 'online' ? 'online' : 'osobně v Praze'}.</p>
       <p class="lead" style="margin-top:12px">Potvrzení a pozvánku do kalendáře jsme poslali na <b style="color:var(--ink)">${esc(S.a.email)}</b>. Den před konzultací Vám přijde SMS připomínka.</p>
-      ${B.manageUrl ? `<a class="btn ghost" href="${esc(B.manageUrl)}" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">Přesunout nebo zrušit termín</a>` : ''}
+      ${B.needsData ? `<button type="button" class="btn pri" data-act="labnow" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">Pokračovat na vstupní dotazník</button>
+      <p class="fine" style="margin-top:10px">Zbývá poslední krok — bez něj nemůžeme připravit žádanku ani podklady pro lékaře.</p>` : ''}
+      ${B.manageUrl ? `<a class="btn ghost" href="${esc(B.manageUrl)}" style="margin-top:clamp(${B.needsData ? '10px,calc(.9*var(--u)),calc(14px*var(--k))' : '18px,calc(1.5*var(--u)),calc(28px*var(--k))'})">Přesunout nebo zrušit termín</a>` : ''}
       <p class="fine" style="margin-top:14px">Termín si můžete přesunout nebo zrušit až do hodiny před začátkem. Poplatek propadá jen tehdy, když se bez omluvy nedostavíte.</p></div>`;
   }
   if (S.verifying && B.hold) return verifyHTML();
@@ -411,7 +413,7 @@ function paymentHTML() {
       <dt>Forma</dt><dd>${S.booking.type === 'online' ? 'Online' : 'Osobně'}</dd>
       <dt>Částka</dt><dd>${fmt(h.amount || CFG.price)} Kč</dd>
     </dl>
-    <div class="hold"><span class="dot"></span><span>Termín Vám držíme 2 hodiny. Jakmile platba dorazí, pošleme Vám potvrzení a pozvánku do kalendáře.</span></div>
+    <div class="hold"><span class="dot"></span><span>Po zaplacení prosím nezavírejte toto okno — čeká na Vás ještě krátký vstupní dotazník. Termín Vám držíme 2 hodiny. Jakmile platba dorazí, pošleme Vám potvrzení a pozvánku do kalendáře.</span></div>
     <div class="paychoice">
       <p class="small-caps" style="margin-bottom:12px">Vyberte způsob platby</p>
       ${h.checkoutUrl ? `<div class="payopt">
@@ -474,8 +476,113 @@ const MANAGE_ERRORS = {
   not_found: 'Rezervaci se nepodařilo najít.',
   too_late: 'Termín je příliš blízko. Zavolejte nám prosím, domluvíme se.',
   slot_taken: 'Tento termín už je bohužel zabraný. Vyberte prosím jiný.',
-  bad_status: 'Tuto rezervaci už nejde měnit.'
+  bad_status: 'Tuto rezervaci už nejde měnit.',
+  rc_invalid: 'Rodné číslo nesedí. Zkontrolujte ho prosím.',
+  rc_dob: 'Rodné číslo neodpovídá datu narození.',
+  bad_address: 'Zkontrolujte prosím adresu a PSČ.',
+  bad_height: 'Zkontrolujte prosím výšku.',
+  bad_weight: 'Zkontrolujte prosím váhu.',
+  bad_birthdate: 'Zkontrolujte prosím datum narození.',
+  bad_name: 'Vyplňte jméno i příjmení.',
+  no_consent: 'Bez souhlasu údaje laboratoři předat nemůžeme.',
+  bad_health: 'Doplňte prosím léky, alergie a otázku k onkologické léčbě.',
+  not_paid: 'Údaje doplníme až po úhradě. Jakmile platba dorazí, ozveme se e-mailem.',
+  disabled: 'Tuto rezervaci nejde doplnit. Napište nám prosím.'
 };
+
+function docsHTML() {
+  const list = (S.manage && S.manage.docs) || [];
+  if (!list.length) return '';
+  return `<div class="callback" style="margin-top:clamp(20px,calc(1.8*var(--u)),calc(32px*var(--k)))">
+    <p class="small-caps">Vaše dokumenty</p>
+    <p class="fine" style="margin-top:8px">K nahlédnutí kdykoli. Podepisuje se až na klinice.</p>
+    ${list.map(d => `<a class="btn ghost" href="${esc(d.url)}" target="_blank" rel="noopener" style="margin-top:10px">${esc(d.name)}</a>`).join('')}
+  </div>`;
+}
+
+function labFormHTML() {
+  const M = S.manage;
+  if (M.dataDone) return `<div class="success"><div class="tick">${icon('i-check')}</div><span class="eyebrow">Děkujeme</span>
+    <h3>Údaje máme</h3>
+    <p class="lead" style="margin-top:14px">Předáme je laboratoři a kód i s adresami odběrových míst Vám pošleme e-mailem.</p>
+    <button type="button" class="btn ghost" style="margin-top:20px" data-act="mskipdata">Zobrazit termín konzultace</button></div>`;
+
+  return `<span class="eyebrow">Poslední krok</span><h3>Vstupní dotazník</h3>
+    <p class="lead" style="margin-top:12px">Vyplňte ho prosím hned teď, ať ho máme před konzultací. Laboratoř z něj vystaví žádanku a lékař podle něj připraví Váš protokol.</p>
+    <div class="bform" style="margin-top:18px">
+      <div class="ufrow one">${uf('name', 'Jméno a příjmení podle průkazu', { autocomplete: 'name', placeholder: 'Jana Nováková' })}</div>
+      <div class="ufrow">${uf('birthDate', 'Datum narození', { type: 'date' })}
+        ${uf('birthNumber', 'Rodné číslo', { inputmode: 'numeric', placeholder: '825310/1234' })}</div>
+      <div class="ufrow">${uf('height', 'Výška · cm', { type: 'number', inputmode: 'numeric', placeholder: '168' })}
+        ${uf('weight', 'Váha · kg', { type: 'number', inputmode: 'numeric', placeholder: '72' })}</div>
+      <div class="ufrow one">${uf('street', 'Ulice a číslo popisné', { autocomplete: 'street-address', placeholder: 'Pod Harfou 943/34' })}</div>
+      <div class="ufrow">${uf('city', 'Město', { autocomplete: 'address-level2', placeholder: 'Praha' })}
+        ${uf('zip', 'PSČ', { inputmode: 'numeric', autocomplete: 'postal-code', placeholder: '190 00' })}</div>
+      <div class="ufrow one">${uf('insurance', 'Zdravotní pojišťovna', { placeholder: 'VZP' })}</div>
+      <p class="small-caps" style="margin:18px 0 0">Zdravotní minimum pro lékaře</p>
+      <div class="ufrow one">${uf('meds', 'Jaké léky a doplňky pravidelně užíváte?', { placeholder: 'Žádné / Euthyrox, hořčík' })}</div>
+      <div class="ufrow one">${uf('allergies', 'Máte nějaké známé alergie?', { placeholder: 'Ne / penicilin' })}</div>
+      <div class="ufrow">${uf('oncology', 'Probíhá u Vás onkologická léčba?', { placeholder: 'Ne' })}
+        ${uf('pregnancy', 'Těhotenství, kojení nebo plán do 6 měsíců?', { placeholder: 'Ne' })}</div>
+      <p class="small-caps" style="margin:18px 0 0">Doplňující · nepovinné, ale lékaři pomůže</p>
+      <div class="ufrow">${uf('job', 'Povolání a charakter práce', { placeholder: 'Sedavá / aktivní / stresová' })}
+        ${uf('energy', 'Úroveň energie 1–10', { type: 'number', inputmode: 'numeric', placeholder: '6' })}</div>
+      <div class="ufrow">${uf('digestion', 'Zažívací potíže', { placeholder: 'Nadýmání, zácpa, pálení žáhy…' })}
+        ${uf('gyn', 'Gynekologické či hormonální potíže', { placeholder: 'Inzulinová rezistence, PCOS…' })}</div>
+      <div class="ufrow">${uf('pastAttempts', 'Dřívější pokusy o hubnutí a výsledek', { placeholder: 'Co jste zkoušel(a) a jak to dopadlo' })}
+        ${uf('pastDrugs', 'Užíval(a) jste léky na hubnutí?', { placeholder: 'Ne / Saxenda, Ozempic…' })}</div>
+      <div class="ufrow one">${uf('diet', 'Typický jídelníček — snídaně, oběd, večeře, svačiny, sladké', { placeholder: 'Klidně upřímně a stručně' })}</div>
+      <div class="ufrow">${uf('water', 'Kolik čisté vody denně', { placeholder: '1,5 l' })}
+        ${uf('alcohol', 'Vztah k alkoholu', { placeholder: 'Nepiji / příležitostně' })}</div>
+      <div class="ufrow">${uf('smoking', 'Kouření či nikotin', { placeholder: 'Nekouřím' })}
+        ${uf('limits', 'Pohybová omezení', { placeholder: 'Bolesti zad, kolena…' })}</div>
+      <div class="ufrow one">${uf('motivation', 'Co je Vaše hlavní motivace?', { placeholder: 'Proč do toho jdete' })}</div>
+      <label class="cbox"><input type="checkbox" id="c-lab" data-consent="labConsent" ${S.a.labConsent ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
+        <span>Souhlasím, aby Aeternum Clinic předala tyto údaje smluvní laboratoři za účelem objednání odběru a provedení vyšetření.</span></label>
+      <button type="button" class="btn pri" id="labBtn">Odeslat údaje</button>
+      <span class="err" id="manageErr" role="alert"></span>
+      <p class="fine">Rodné číslo posíláme jen laboratoři. V e-mailech ho nikdy neuvádíme.</p>
+    </div>`;
+}
+
+async function submitLabData(btn) {
+  const M = S.manage;
+  const err = m => { const el = $('#manageErr'); if (el) el.textContent = m; };
+  err('');
+  const a = S.a;
+  if (!a.name || !/\s/.test(a.name.trim())) return err('Vyplňte jméno i příjmení.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(a.birthDate || '')) return err('Vyplňte datum narození.');
+  if (!/^\d{6}\s*\/?\s*\d{3,4}$/.test((a.birthNumber || '').trim())) return err('Rodné číslo zadejte ve tvaru 825310/1234.');
+  if (!(Number(a.height) >= 120)) return err('Vyplňte výšku v centimetrech.');
+  if (!(Number(a.weight) >= 30)) return err('Vyplňte váhu v kilogramech.');
+  if (!a.street || !a.city || !/^\d{3}\s?\d{2}$/.test((a.zip || '').trim())) return err('Vyplňte prosím celou adresu včetně PSČ.');
+  if (!(a.meds || '').trim()) return err('Napište prosím léky a doplňky, nebo „žádné“.');
+  if (!(a.allergies || '').trim()) return err('Napište prosím alergie, nebo „ne“.');
+  if (!(a.oncology || '').trim()) return err('Odpovězte prosím na otázku k onkologické léčbě.');
+  if (!a.labConsent) return err('Bez souhlasu údaje laboratoři předat nemůžeme.');
+  const label = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Odesíláme…';
+  try {
+    await api('labData', {
+      vs: M.vs, t: M.t, name: a.name.trim(), birthDate: a.birthDate, birthNumber: a.birthNumber.trim(),
+      height: Number(a.height), weight: Number(a.weight), street: a.street.trim(), city: a.city.trim(),
+      zip: (a.zip || '').replace(/\s/g, ''), insurance: (a.insurance || '').trim(), consent: true,
+      meds: (a.meds || '').trim(), allergies: (a.allergies || '').trim(),
+      oncology: (a.oncology || '').trim(), pregnancy: (a.pregnancy || '').trim(),
+      job: (a.job || '').trim(), digestion: (a.digestion || '').trim(), gyn: (a.gyn || '').trim(),
+      energy: (a.energy || '').toString().trim(), pastAttempts: (a.pastAttempts || '').trim(),
+      pastDrugs: (a.pastDrugs || '').trim(), diet: (a.diet || '').trim(), water: (a.water || '').trim(),
+      alcohol: (a.alcohol || '').trim(), smoking: (a.smoking || '').trim(), limits: (a.limits || '').trim(),
+      motivation: (a.motivation || '').trim()
+    }, 30000);
+    delete S.a.birthNumber;                     // v prohlížeči ho dál nedržíme
+    S.manage = Object.assign({}, M, { dataDone: true, needsData: false });
+    rerender();
+  } catch (x) {
+    btn.disabled = false; btn.textContent = label;
+    err(manageError(x));
+  }
+}
 const manageError = x => MANAGE_ERRORS[x && x.code] || ('Nepodařilo se to. Zkuste to prosím znovu, nebo zavolejte na ' + CFG.phone + '.');
 
 function manageWhen(iso) {
@@ -499,6 +606,8 @@ function managePanelHTML() {
     <p class="lead" style="margin-top:14px">${esc(manageWhen(M.slot))} — ${M.type === 'online' ? 'online' : 'osobně v Praze'}.</p>
     <p class="lead" style="margin-top:12px">Potvrzení a novou pozvánku do kalendáře jsme poslali e-mailem.</p></div>`;
 
+  if ((M.needsData || M.dataDone) && M.mode !== 'reschedule' && M.mode !== 'cancel') return labFormHTML();
+
   const head = `<span class="eyebrow">Váš termín</span><h3>${esc(manageWhen(M.slot))}</h3>
     <p class="lead" style="margin-top:12px">${M.type === 'online' ? 'Online' : 'Osobně v Praze'} · ${CFG.duration} minut${M.status === 'čeká na platbu' ? ' · čeká na úhradu' : ''}</p>`;
 
@@ -517,7 +626,7 @@ function managePanelHTML() {
     <button type="button" class="btn ghost" style="margin-top:10px" data-act="mcancelmode">Zpět</button>
     <span class="err" id="manageErr" role="alert"></span>`;
 
-  return head + `<button type="button" class="btn pri" style="margin-top:22px" data-act="mreschedule">Přesunout termín</button>
+  return head + docsHTML() + `<button type="button" class="btn pri" style="margin-top:22px" data-act="mreschedule">Přesunout termín</button>
     <button type="button" class="btn ghost" style="margin-top:10px" data-act="mcancel">Zrušit rezervaci</button>
     <p class="fine" style="margin-top:16px">Změnit termín jde až do hodiny před začátkem. Potom nám zavolejte na ${esc(CFG.phone)}.</p>`;
 }
@@ -529,6 +638,10 @@ async function loadManage(vs, t) {
     const j = await api('booking', { vs, t }, 20000);
     S.manage = Object.assign({ vs, t }, j);
     S.booking.type = j.type;
+    if (j.name && !S.a.name) S.a.name = j.name;
+    if (j.street && !S.a.street) S.a.street = j.street;
+    if (j.city && !S.a.city) S.a.city = j.city;
+    if (j.zip && !S.a.zip) S.a.zip = j.zip;
   } catch (x) {
     S.manage = { vs, t, gone: true, err: manageError(x) };
   }
@@ -548,6 +661,15 @@ document.addEventListener('click', async e => {
   if (b.dataset.act === 'mcancelmode') { S.manage.mode = null; rerender(); return; }
   if (b.id === 'reschedBtn') { await submitReschedule(b); return; }
   if (b.id === 'cancelBtn') { await submitCancel(b); return; }
+  if (b.id === 'labBtn') { await submitLabData(b); return; }
+  if (b.dataset.act === 'mskipdata') { S.manage.needsData = false; S.manage.dataDone = false; rerender(); return; }
+  if (b.dataset.act === 'labnow') {
+    const u = S.booking.manageUrl || '';
+    const q = new URLSearchParams(u.split('?')[1] || '');
+    const vs = q.get('vs') || (S.booking.hold && S.booking.hold.vs), t = q.get('t');
+    if (vs && t) { loadManage(vs, t); } else if (u) { location.href = u; }
+    return;
+  }
 });
 document.addEventListener('input', e => {
   const t = e.target;
@@ -696,6 +818,7 @@ function startPolling() {
         if (j.type) S.booking.type = j.type;
         if (j.meet) S.booking.meet = j.meet;
         if (j.manageUrl) S.booking.manageUrl = j.manageUrl;
+        S.booking.needsData = !!j.needsData;
         if (j.minHours) S.booking.minHours = j.minHours;
         if (j.email && !S.a.email) S.a.email = j.email;
         rerender();
