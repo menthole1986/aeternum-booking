@@ -654,7 +654,9 @@ function managePanelHTML() {
 
   return head + docsHTML() + `<button type="button" class="btn pri" style="margin-top:22px" data-act="mreschedule">Přesunout termín</button>
     <button type="button" class="btn ghost" style="margin-top:10px" data-act="mcancel">Zrušit rezervaci</button>
-    <p class="fine" style="margin-top:16px">Změnit termín jde až do hodiny před začátkem. Potom nám zavolejte na ${esc(CFG.phone)}.</p>`;
+    <p class="fine" style="margin-top:16px">${new Date(M.slot).getTime() < Date.now()
+      ? 'Původní konzultace proběhla bez Vás — nový termín si vyberte, kdy se Vám hodí. Platit znovu nic nebudete.'
+      : `Změnit termín jde až do hodiny před začátkem. Potom nám zavolejte na ${esc(CFG.phone)}.`}</p>`;
 }
 
 async function loadManage(vs, t) {
