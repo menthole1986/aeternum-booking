@@ -633,8 +633,12 @@ function managePanelHTML() {
   const head = `<span class="eyebrow">Váš termín</span><h3>${esc(manageWhen(M.slot))}</h3>
     <p class="lead" style="margin-top:12px">${M.type === 'online' ? 'Online' : 'Osobně v Praze'} · ${CFG.duration} minut${M.status === 'čeká na platbu' ? ' · čeká na úhradu' : ''}</p>`;
 
+  // Termín po konci konzultace měnit nelze, pokud klinika neoznačila, že klient nedorazil —
+  // „zbývá méně než hodina“ by u dávno proběhlé konzultace znělo nesmyslně.
   if (!M.changeable) return head +
-    `<p class="fine" style="margin-top:18px">Termín už online měnit nejde, protože do konzultace zbývá méně než hodina. Zavolejte nám na ${esc(CFG.phone)} a domluvíme se.</p>`;
+    `<p class="fine" style="margin-top:18px">${new Date(M.slot).getTime() < Date.now()
+      ? 'Tahle konzultace už proběhla, online ji přesunout nejde.'
+      : 'Termín už online měnit nejde, protože do konzultace zbývá méně než hodina.'} Zavolejte nám na ${esc(CFG.phone)} a domluvíme se.</p>`;
 
   if (M.mode === 'reschedule') return head + `<p class="small-caps" style="margin-top:22px">Vyberte nový termín</p>
     ${slotsHTML(false)}
