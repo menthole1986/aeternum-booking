@@ -898,24 +898,49 @@ function resetAll() {
   window.scrollTo(0, 0);
 }
 
+/* ---------- potvrzení účasti z e-mailu kliniky ----------------------------
+   Odkaz z e-mailu „Dorazil(a) klient?“ míří sem, ne na script.google.com —
+   adresa webové aplikace Google se v prohlížeči s více přihlášenými účty
+   přepisuje na tvar /u/N/ a často skončí chybou. */
+async function attendanceAction(action, vs, t) {
+  const panel = document.querySelector('.panel') || document.body;
+  const box = (title, text) => `<div class="success"><span class="eyebrow">Aeternum Clinic</span>
+    <h3>${esc(title)}</h3><p class="lead" style="margin-top:14px">${esc(text)}</p></div>`;
+  panel.innerHTML = box('Pracuji na tom…', 'Zaznamenávám odpověď.');
+  try {
+    const j = await api('attendance', { action, vs, t }, 30000);
+    panel.innerHTML = box(j.title || 'Hotovo', j.text || '');
+  } catch (x) {
+    panel.innerHTML = box('Nepodařilo se', 'Zkuste to prosím ještě jednou, nebo zavolejte na ' + CFG.phone + '.');
+  }
+}
+
 /* ---------- start ---------- */
 load();
 if (URLP.get('id')) S.screeningId = URLP.get('id');
 
-// Návrat z platební brány: hned ukážeme ověřování, i když o rezervaci nic nevíme
-// (třeba když platba začala na screeningu).
+const attAction = URLP.get('att');
 const manageVs = URLP.get('vs'), manageT = URLP.get('t');
-if (manageVs && manageT) { S.booking = { type: null, slot: null, day: null }; loadManage(manageVs, manageT); }
 
-const paidVs = URLP.get('paid');
-if (paidVs && !S.booking.paid) {
-  if (!S.booking.hold || S.booking.hold.vs !== paidVs) S.booking.hold = { vs: paidVs, amount: CFG.price };
-  S.verifying = true;
-  S.verifyStep = 0;
+if (attAction && manageVs && manageT) {
+  // Klinika odpovídá na dotaz, jestli klient dorazil. Zbytek startu přeskakujeme.
+  rerender();
+  attendanceAction(attAction, manageVs, manageT);
+} else {
+  // Návrat z platební brány: hned ukážeme ověřování, i když o rezervaci nic nevíme
+  // (třeba když platba začala na screeningu).
+  if (manageVs && manageT) { S.booking = { type: null, slot: null, day: null }; loadManage(manageVs, manageT); }
+
+  const paidVs = URLP.get('paid');
+  if (paidVs && !S.booking.paid) {
+    if (!S.booking.hold || S.booking.hold.vs !== paidVs) S.booking.hold = { vs: paidVs, amount: CFG.price };
+    S.verifying = true;
+    S.verifyStep = 0;
+  }
+  rerender();
+  if (S.verifying) startPolling();
+  prefill();
 }
-rerender();
-if (S.verifying) startPolling();
-prefill();
 
 /* ---------- české sirotky ----------------------------------------------
    Jednopísmenné předložky a spojky (k, s, v, z, o, u, a, i) ani krátké
