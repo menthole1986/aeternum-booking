@@ -16,7 +16,7 @@
   --line:rgba(255,255,255,.14); --line2:rgba(255,255,255,.24);
   --grad:linear-gradient(90deg,#7A3E9E,#2F86CC);
   --grad-text:linear-gradient(90deg,#A27AD2,#4FA3E0);
-  --good:#5ED3A0; --warn:#F2B45A; --crit:#EE7A6D;
+  --good:#5ED3A0; --ok:#B5D333; --warn:#F2B45A; --crit:#EE7A6D;
   --gut:clamp(20px,calc(7.3*var(--u)),calc(140px*var(--k)));
   --u:min(1vw,1.7778vh); --k:1;
   --font:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif;
@@ -224,13 +224,25 @@ h3.grad,.h3grad{display:block;width:fit-content;align-self:flex-start;background
 
 /* ── úpravy po kontrole na telefonu ── */
 .price-note{font-size:clamp(13px,calc(.95*var(--u)),calc(17px*var(--k)));color:var(--ink);font-weight:500;margin-top:10px;line-height:1.5}
+.notice{display:flex;gap:12px;align-items:flex-start;margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)));padding:clamp(14px,calc(1.1*var(--u)),calc(20px*var(--k))) clamp(14px,calc(1.2*var(--u)),calc(22px*var(--k)));border:1px solid rgba(242,180,90,.4);background:rgba(242,180,90,.08);border-radius:16px;font-size:clamp(13px,calc(.92*var(--u)),calc(17px*var(--k)));line-height:1.55;color:var(--ink);max-width:40em}
+.reassure{font-size:clamp(13px,calc(.9*var(--u)),calc(17px*var(--k)));color:var(--muted);line-height:1.6;max-width:40em}
+.reassure b{color:var(--ok);font-weight:600}
 /* nadpis platby na jeden řádek, štítek pod něj */
 .payhead{flex-direction:column;align-items:center;gap:8px}
 .payhead b{font-size:clamp(13.5px,calc(.98*var(--u)),calc(19px*var(--k)));white-space:nowrap}
 @media (max-width:400px){.payhead b{font-size:13px}}
 @media (max-width:760px){
   /* „Termín držíme pro Vás“ na jeden řádek */
-  .panel h3{font-size:21px}
+  .panel h3{font-size:26px}
+  /* na telefonu drží hlavička panelu střed */
+  .panel > h3,.panel > .eyebrow{text-align:center}
+  .panel > h3.grad{margin-left:auto;margin-right:auto}
+  .panel > .price{justify-content:center}
+  .panel > .price-note{text-align:center}
+  /* plochy na dotek: odkazy v hlavičce a patičce a políčka formuláře měly pod 30 px */
+  .linkbtn{padding:12px 0;margin:-6px 0}
+  .disclaimer a{display:inline-block;padding:8px 0}
+  .uf input{padding:6px 0}
   /* odmítnutí konzultace i s emoji na jeden řádek */
   .decline .btn{font-size:11px;letter-spacing:.06em;white-space:nowrap;padding:14px 12px}
 }
@@ -255,11 +267,12 @@ h3.grad,.h3grad{display:block;width:fit-content;align-self:flex-start;background
   </header>
   <main><div class="screen"><div class="split">
     <div>
-      <span class="eyebrow">Aeternum Clinic</span>
+      <span class="eyebrow">První krok</span>
       <h1 class="h-l">Vstupní<br><span class="light">konzultace</span></h1>
       <p class="lead" style="margin-top:clamp(16px,calc(1.4*var(--u)),calc(28px*var(--k)))">S koordinátorem péče, se kterým společně proberete:</p>
-      <div class="bul"><div>Individuální nastavení Vašeho programu</div><div>Podmínky smlouvy o programu péče</div><div>Možnosti financování programu</div></div>
+      <div class="bul"><div>Seznámení s terapií redukce hmotnosti</div><div>Individuální nastavení Vašeho programu</div></div>
       <p class="fine" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">Konzultace trvá 30 minut a proběhne online, nebo osobně v Praze. Rezervace je platná po uhrazení poplatku.</p>
+      <span class="eyebrow" style="margin-top:clamp(38px,calc(3.2*var(--u)),calc(58px*var(--k)))">Druhý krok</span><p class="notice" style="margin-top:clamp(10px,calc(0.8*var(--u)),calc(14px*var(--k)))"><span>⚠️</span><span>Pro posouzení vhodnosti terapie Vás čeká krevní screening a lékařské vyšetření (4 970 Kč). Hradí se až po vstupní konzultaci, teď neplatíte nic navíc.</span></p><p class="reassure" style="margin-top:12px"><b>Ze screeningu nemusíte mít žádné obavy.</b> Ověřujeme jím, že je pro Vás terapie bezpečná a v jaké dávce začít.</p>
     </div>
     <div class="panel" id="panel"></div>
   </div></div></main>
@@ -351,9 +364,9 @@ function panelHTML() {
   if (S.verifying && B.hold) return verifyHTML();
   if (B.hold) return paymentHTML();
 
-  return `<span class="eyebrow">Vstupní konzultace</span><h3>Rezervace termínu</h3>
+  return `<h3 class="grad" style="margin-top:0">Rezervace termínu</h3>
     <div class="price"><b>${fmt(CFG.price)} Kč</b><span class="small-caps">${CFG.duration} minut</span></div>
-    <p class="price-note">Poplatek za čas koordinátora a přípravu na Váš případ.</p>
+    <p class="price-note">Částka Vám bude odečtena z první platby za program.</p>
     <div class="seg2" role="group" aria-label="Forma konzultace">
       <button type="button" data-btype="online" aria-pressed="${B.type === 'online'}">Online</button>
       <button type="button" data-btype="osobne" aria-pressed="${B.type === 'osobne'}">Osobně v Praze</button>
@@ -410,6 +423,18 @@ function formHTML() {
     <span class="err" id="bookErr" role="alert"></span></div>`;
 }
 
+/* Dokdy termín držíme. Bere se čas z odpovědi serveru, ne pevné číslo —
+   když se doba držení na serveru změní, stránka to řekne správně sama.
+   Kdyby čas nepřišel, napíšeme to obecně, ať tam nesvítí nesmysl. */
+function holdText(h) {
+  const t = h && h.holdUntil ? new Date(h.holdUntil) : null;
+  if (!t || isNaN(t.getTime())) return 'několik hodin';
+  const hh = String(t.getHours()).padStart(2, '0');
+  const mm = String(t.getMinutes()).padStart(2, '0');
+  const dnes = new Date().toDateString() === t.toDateString();
+  return (dnes ? 'do ' : 'do zítřka do ') + hh + ':' + mm;
+}
+
 function paymentHTML() {
   const h = S.booking.hold, d = new Date(S.booking.slot);
   return `<span class="eyebrow">Zbývá zaplatit</span><h3>Termín držíme pro Vás</h3>
@@ -418,7 +443,7 @@ function paymentHTML() {
       <dt>Forma</dt><dd>${S.booking.type === 'online' ? 'Online' : 'Osobně'}</dd>
       <dt>Částka</dt><dd>${fmt(h.amount || CFG.price)} Kč</dd>
     </dl>
-    <div class="hold"><span class="dot"></span><span>Po zaplacení prosím nezavírejte toto okno — čeká na Vás ještě krátký vstupní dotazník. Termín Vám držíme 2 hodiny. Jakmile platba dorazí, pošleme Vám potvrzení a pozvánku do kalendáře.</span></div>
+    <div class="hold"><span class="dot"></span><span>Po zaplacení prosím nezavírejte toto okno — čeká na Vás ještě krátký vstupní dotazník. Termín Vám držíme ${holdText(h)}. Jakmile platba dorazí, pošleme Vám potvrzení a pozvánku do kalendáře.</span></div>
     <div class="paychoice">
       <p class="small-caps" style="margin-bottom:12px">Vyberte způsob platby</p>
       ${h.checkoutUrl ? `<div class="payopt">
@@ -952,7 +977,7 @@ if (attAction && manageVs && manageT) {
 /* ---------- české sirotky ----------------------------------------------
    Jednopísmenné předložky a spojky (k, s, v, z, o, u, a, i) ani krátké
    předložky typu „na“ nebo „do“ nesmí zůstat viset na konci řádku. Stejně
-   tak se nemá rozpadnout číslo od jednotky („30 minut“, „5 170 Kč“).
+   tak se nemá rozpadnout číslo od jednotky („30 minut“, „4 970 Kč“).
    Běží i nad obsahem, který se dokresluje později. */
 const ORPHAN_RE = /(^|[\s(„"'»–—])((?:[aiksuvozAIKSUVOZ]|[Dd]o|[Nn]a|[Pp]o|[Zz]a|[Oo]d|[Vv]e|[Zz]e|[Ss]e|[Kk]e|[Pp]ro|[Pp]ři|[Bb]ez|[Nn]ad|[Pp]od|[Žž]e)) /g;
 function fixTextNode(n) {
