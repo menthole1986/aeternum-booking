@@ -82,15 +82,32 @@ main > .screen{width:100%;animation:rise .4s ease both}
 .price{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 22px;margin-top:clamp(14px,calc(1.15*var(--u)),calc(22px*var(--k)))}
 .price b{font-size:clamp(42px,calc(4.4*var(--u)),calc(84px*var(--k)));font-weight:700;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
 .fine{font-size:clamp(12px,calc(.8*var(--u)),calc(15px*var(--k)));color:var(--dim);line-height:1.55}
+/* Potvrzení odběru. Je to jediná věc, kterou od klienta mezi platbou
+   a vyšetřením potřebujeme, takže má vlastní rámeček a nesplývá se zbytkem. */
+.labask{margin-top:22px;padding:16px 18px;border:1.5px solid var(--line2);border-radius:16px;background:rgba(255,255,255,.04)}
+.labok{margin-top:22px;display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border-radius:14px;background:rgba(110,61,156,.14);border:1px solid rgba(162,122,210,.4);font-size:clamp(13px,calc(.86*var(--u)),calc(16px*var(--k)));line-height:1.5}
+.labok svg{flex:0 0 auto;width:20px;height:20px;margin-top:1px}
 .seg2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))}
 .seg2 button{height:clamp(52px,calc(3.2*var(--u)),calc(62px*var(--k)));border-radius:16px;border:1.5px solid rgba(255,255,255,.22);background:transparent;font-size:clamp(13px,calc(.92*var(--u)),calc(17px*var(--k)));font-weight:600;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center}
 .seg2 button[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff}
+/* Tři podoby konzultace vedle sebe. Cena patří přímo na tlačítko — jinak by
+   si klient musel pamatovat, co stojí co, než na něco klikne. */
+.seg3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))}
+.seg3 button{min-height:clamp(62px,calc(4*var(--u)),calc(78px*var(--k)));padding:10px 8px;border-radius:16px;border:1.5px solid rgba(255,255,255,.22);background:transparent;cursor:pointer;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;line-height:1.25}
+.seg3 button b{font-size:clamp(12px,calc(.8*var(--u)),calc(15px*var(--k)));font-weight:600;color:var(--ink)}
+.seg3 button i{font-style:normal;font-size:clamp(11px,calc(.7*var(--u)),calc(13px*var(--k)));font-weight:600;letter-spacing:.04em}
+.seg3 button[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff}
+.seg3 button[aria-pressed="true"] b,.seg3 button[aria-pressed="true"] i{color:#fff}
+.twin{margin-top:clamp(16px,calc(1.3*var(--u)),calc(24px*var(--k)))}
+.twin p{font-size:clamp(13px,calc(.9*var(--u)),calc(17px*var(--k)));color:var(--muted);line-height:1.62;margin:0 0 10px}
+.twin p b{color:var(--ink);font-weight:600}
 .days{display:flex;gap:8px;overflow-x:auto;max-width:100%;margin-top:18px;padding-bottom:6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .days::-webkit-scrollbar{display:none}
 .day{flex:none;min-width:74px;padding:10px 12px;border-radius:14px;border:1.5px solid rgba(255,255,255,.18);background:transparent;cursor:pointer;text-align:center;color:var(--muted)}
 .day b{display:block;font-size:19px;font-weight:700;color:var(--ink);line-height:1.1}
 .day span{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-top:4px}
 .day[aria-pressed="true"]{border-color:transparent;background:var(--grad);color:#fff}
+.day[aria-pressed="true"] b{color:#fff}
 .times{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;margin-top:16px}
 .time{height:48px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:transparent;font-size:16px;font-weight:600;cursor:pointer;color:var(--ink);font-variant-numeric:tabular-nums}
 .time:hover{border-color:rgba(255,255,255,.5)}
@@ -183,7 +200,8 @@ h3.grad,.h3grad{display:block;width:fit-content;align-self:flex-start;background
 .success .tick{width:clamp(56px,calc(3.6*var(--u)),calc(68px*var(--k)));height:clamp(56px,calc(3.6*var(--u)),calc(68px*var(--k)));border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
 .success .tick svg{width:44%;height:44%;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
 .disclaimer{padding:clamp(22px,calc(2.3*var(--u)),calc(44px*var(--k))) var(--gut) clamp(30px,calc(3*var(--u)),calc(60px*var(--k)));font-size:clamp(10px,calc(.62*var(--u)),calc(12px*var(--k)));color:var(--dim);line-height:1.7;border-top:1px solid rgba(255,255,255,.08);position:relative;z-index:1;text-align:center;max-width:76em;margin:0 auto}
-@media (max-width:760px){.panel{padding:22px 18px;border-radius:22px}.seg2 button{height:50px;font-size:14px}.h-l{font-size:28px}}
+@media (max-width:760px){.panel{padding:22px 18px;border-radius:22px}.seg2 button{height:50px;font-size:14px}.h-l{font-size:28px}
+  .seg3{gap:8px}.seg3 button{min-height:70px;padding:10px 6px}.seg3 button b{font-size:12px}.seg3 button i{font-size:11px}}
 
 /* ── doladění pro telefon ── */
 @media (max-width:760px){
@@ -247,6 +265,79 @@ h3.grad,.h3grad{display:block;width:fit-content;align-self:flex-start;background
   .decline .btn{font-size:11px;letter-spacing:.06em;white-space:nowrap;padding:14px 12px}
 }
 @media (max-width:380px){.decline .btn{font-size:10px}}
+
+/* ---------- Světlý vzhled ----------------------------------------------
+   Pozadí, černý text a limetkové tlačítko podle www.aeternumclinic.cz.
+   Blok je schválně až na konci sešitu: přebíjí tmavé hodnoty výše, takže se
+   dá celý smazat a stránka se vrátí do původní tmavé podoby. */
+:root{
+  --ground:#ECECEC; --ink:#141414;
+  --muted:rgba(20,20,20,.68); --dim:rgba(20,20,20,.46);
+  --line:rgba(20,20,20,.12); --line2:rgba(20,20,20,.22);
+  --grad-text:linear-gradient(90deg,#7A3E9E,#2F86CC);
+  --good:#2E9E6B; --ok:#6F8F12; --warn:#B4770C; --crit:#C8372A;
+  --lime:#BAD758;
+  --karta:rgba(255,255,255,.72);          /* plocha karet na světlém pozadí */
+  --karta-line:rgba(20,20,20,.1);
+}
+html,body{background:var(--ground);color:var(--ink)}
+.bg{background:var(--ground) url("bg.webp") center center/cover no-repeat}
+.bg svg.wave,.bg .veil{display:none}
+
+/* tlačítka */
+.btn.lime{background:var(--lime);color:#141414}
+.btn.ghost{border-color:rgba(20,20,20,.25)}
+.btn.ghost:hover{border-color:rgba(20,20,20,.55)}
+.btn.soft-crit{background:rgba(200,55,42,.08);border-color:rgba(200,55,42,.35);color:#A32B21}
+.btn.soft-crit:hover{background:rgba(200,55,42,.14);border-color:rgba(200,55,42,.6);color:#8A241B}
+.round:hover{border-color:rgba(20,20,20,.55)}
+
+/* odpovědi a formulář */
+.opt{border-color:rgba(20,20,20,.18);background:rgba(255,255,255,.6);color:rgba(20,20,20,.86)}
+.opt:hover{border-color:rgba(20,20,20,.5)}
+.rows{border-bottom-color:rgba(20,20,20,.12)}
+.rowopt .mark{border-color:rgba(20,20,20,.28)}
+.uf input::placeholder{color:rgba(20,20,20,.3)}
+.cbox .box{border-color:rgba(20,20,20,.3);background:rgba(255,255,255,.7)}
+.checks .ic::after{background:rgba(20,20,20,.25)}
+.srng{background:rgba(20,20,20,.16)}
+.segs i{background:rgba(20,20,20,.16)}
+.genbar{background:rgba(20,20,20,.14)}
+.ringwrap::before{background:radial-gradient(circle,rgba(20,20,20,.08),rgba(20,20,20,0) 70%)}
+
+/* karty a plochy */
+.rsec{border-top-color:rgba(20,20,20,.1)}
+.val{border-top-color:rgba(20,20,20,.18)}
+.drug,.var,.varinfo,.lv,.tile,.qbox{background:var(--karta);border-color:var(--karta-line)}
+.var:hover{border-color:rgba(20,20,20,.4)}
+.panel{background:rgba(255,255,255,.82);border-color:var(--karta-line);box-shadow:0 24px 60px rgba(20,20,20,.07)}
+.qbox::placeholder{color:rgba(20,20,20,.38)}
+.chip:hover{border-color:rgba(20,20,20,.5)}
+.body-wide{color:var(--muted)}
+.strip{color:var(--dim)}
+/* barevné záře byly kreslené na tmavé pozadí, na světlém dělají špínu */
+.glow{opacity:.1;filter:blur(70px)}
+.index-num{background:linear-gradient(120deg,#8B5CC7,#2F86CC);-webkit-background-clip:text;background-clip:text}
+
+/* termíny */
+.dayarrow:hover{border-color:rgba(20,20,20,.5)}
+.day,.time{background:rgba(255,255,255,.6)}
+.day:hover,.time:hover{border-color:rgba(20,20,20,.5)}
+.seg2 button{border-color:rgba(20,20,20,.2);background:rgba(255,255,255,.6)}
+.seg2 button:hover{border-color:rgba(20,20,20,.45)}
+.seg3 button{border-color:rgba(20,20,20,.2);background:rgba(255,255,255,.6)}
+.seg3 button:hover{border-color:rgba(20,20,20,.45)}
+.seg2 button[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff}
+
+/* čekací stavy */
+.skel{background:linear-gradient(90deg,rgba(20,20,20,.05) 25%,rgba(20,20,20,.1) 50%,rgba(20,20,20,.05) 75%);background-size:420px 100%}
+.sp{border-color:rgba(20,20,20,.22);border-top-color:#141414}
+.verify .ring .bg2{stroke:rgba(20,20,20,.14)}
+
+/* přilepená lišta s tlačítkem na mobilu */
+@media (max-width:760px){
+  .foot.sticky{background:linear-gradient(to top,var(--ground) 72%,rgba(236,236,236,0))}
+}
 </style>
 </head>
 <body>
@@ -269,9 +360,9 @@ h3.grad,.h3grad{display:block;width:fit-content;align-self:flex-start;background
     <div>
       <span class="eyebrow">První krok</span>
       <h1 class="h-l">Vstupní<br><span class="light">konzultace</span></h1>
-      <p class="lead" style="margin-top:clamp(16px,calc(1.4*var(--u)),calc(28px*var(--k)))">S koordinátorem péče, se kterým společně proberete:</p>
+      <p class="lead" style="margin-top:clamp(16px,calc(1.4*var(--u)),calc(28px*var(--k)))">S naším AI konzultantem, nebo s koordinátorem péče. Tak jako tak proberete:</p>
       <div class="bul"><div>Seznámení s terapií redukce hmotnosti</div><div>Individuální nastavení Vašeho programu</div></div>
-      <p class="fine" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">Konzultace trvá 30 minut a proběhne online, nebo osobně v Praze. Rezervace je platná po uhrazení poplatku.</p>
+      <p class="fine" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">S AI konzultantem si můžete povídat hned po zaplacení 121 Kč a odkaz platí 24 hodin. Konzultace s koordinátorem trvá 30 minut, proběhne online nebo osobně v Praze a rezervace je platná po uhrazení poplatku. Obě částky Vám odečteme z první platby za program.</p>
       <span class="eyebrow" style="margin-top:clamp(38px,calc(3.2*var(--u)),calc(58px*var(--k)))">Druhý krok</span><p class="notice" style="margin-top:clamp(10px,calc(0.8*var(--u)),calc(14px*var(--k)))"><span>⚠️</span><span>Pro posouzení vhodnosti terapie Vás čeká krevní screening a lékařské vyšetření (4 970 Kč). Hradí se až po vstupní konzultaci, teď neplatíte nic navíc.</span></p><p class="reassure" style="margin-top:12px"><b>Ze screeningu nemusíte mít žádné obavy.</b> Ověřujeme jím, že je pro Vás terapie bezpečná a v jaké dávce začít.</p>
     </div>
     <div class="panel" id="panel"></div>
@@ -289,7 +380,16 @@ h3.grad,.h3grad{display:block;width:fit-content;align-self:flex-start;background
 const URLP = new URLSearchParams(location.search);
 const CFG = {
   apiUrl: 'https://script.google.com/macros/s/AKfycby5mSooRjSpT8CUoaQzhJLW60VzvJwva3e7nLnlLqDBG5FsKBdp70ykk9wO9fE5130p/exec',                                   // webová aplikace z aeternum_screening_apps_script.gs
-  price: 570,
+  price: 570,                                   // konzultace se živým koordinátorem (online i osobně)
+  /* AI konzultant. Jméno je na jednom místě schválně — kdyby se měnilo, mění
+     se tady a nikde jinde. Cena je sto korun plus DPH; symbolická částka je
+     tam proto, aby klient konzultaci bral vážně, a odečítá se z první platby
+     za program stejně jako konzultace s člověkem. Adresu, kde konzultant
+     běží, stránka nezná — dá ji server po zaplacení. */
+  advisorName: 'Marcel AI',                     // 1. pád
+  advisorWith: 'Marcelem AI',                   // 7. pád — „s Marcelem AI"; samotné AI se neskloňuje
+  advisorPrice: 121,                            // 100 Kč + 21 % DPH
+  advisorHours: 24,                             // jak dlouho po zaplacení se dá ke konzultaci vracet
   duration: 30,
   holdMinutes: 120,
   leadDays: 14,
@@ -350,6 +450,14 @@ function verifyHTML() {
 function panelHTML() {
   const B = S.booking;
   if (S.manage) return managePanelHTML();
+  if (B.paid && B.type === 'advisor') {
+    return `<div class="success"><div class="tick">${icon('i-check')}</div><span class="eyebrow">Zaplaceno</span>
+      <h3>Konzultace je připravená</h3>
+      <p class="lead" style="margin-top:14px">${esc(CFG.advisorName)} na Vás čeká. Nemusíte hned — odkaz platí ${CFG.advisorHours} hodin a během nich se ke konzultaci můžete vracet.</p>
+      ${B.advisorUrl ? `<a class="btn pri" href="${esc(B.advisorUrl)}" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">Spustit konzultaci</a>`
+        : `<p class="lead" style="margin-top:12px">Odkaz Vám posíláme e-mailem na <b style="color:var(--ink)">${esc(S.a.email)}</b>.</p>`}
+      <p class="fine" style="margin-top:14px">Odkaz i doklad o platbě máme poslané na ${esc(S.a.email)}. Částku Vám odečteme z první platby za program.</p></div>`;
+  }
   if (B.paid) {
     const d = new Date(B.slot);
     return `<div class="success"><div class="tick">${icon('i-check')}</div><span class="eyebrow">Potvrzeno</span>
@@ -364,16 +472,43 @@ function panelHTML() {
   if (S.verifying && B.hold) return verifyHTML();
   if (B.hold) return paymentHTML();
 
-  return `<h3 class="grad" style="margin-top:0">Rezervace termínu</h3>
-    <div class="price"><b>${fmt(CFG.price)} Kč</b><span class="small-caps">${CFG.duration} minut</span></div>
-    <p class="price-note">Částka Vám bude odečtena z první platby za program.</p>
-    <div class="seg2" role="group" aria-label="Forma konzultace">
-      <button type="button" data-btype="online" aria-pressed="${B.type === 'online'}">Online</button>
-      <button type="button" data-btype="osobne" aria-pressed="${B.type === 'osobne'}">Osobně v Praze</button>
+  return `<h3 class="grad" style="margin-top:0">Vstupní konzultace</h3>
+    ${priceHTML(B.type)}
+    <div class="seg3" role="group" aria-label="Podoba konzultace">
+      <button type="button" data-btype="advisor" aria-pressed="${B.type === 'advisor'}"><b>AI konzultant</b><i>${fmt(CFG.advisorPrice)} Kč</i></button>
+      <button type="button" data-btype="online" aria-pressed="${B.type === 'online'}"><b>Konzultant online</b><i>${fmt(CFG.price)} Kč</i></button>
+      <button type="button" data-btype="osobne" aria-pressed="${B.type === 'osobne'}"><b>Konzultant v Praze</b><i>${fmt(CFG.price)} Kč</i></button>
     </div>
-    ${B.type ? slotsHTML() : `<p class="fine" style="margin-top:16px">Vyberte formu konzultace pro zobrazení volných termínů.</p>`}`;
+    ${B.type === 'advisor' ? advisorHTML() : B.type ? slotsHTML() : `<p class="fine" style="margin-top:16px">Vyberte si podobu konzultace a ukážu Vám, jak dál.</p>`}`;
 }
 
+/* Cenu ukazujeme velkým písmem až po volbě — dokud si klient nevybere, stojí
+   konzultace 121 nebo 570 a jedno číslo by lhalo. Do té doby ji nese tlačítko. */
+function priceHTML(type) {
+  if (!type) return '';
+  if (type === 'advisor') return `<div class="price"><b>${fmt(CFG.advisorPrice)} Kč</b><span class="small-caps">hned teď</span></div>
+    <p class="price-note">Částku Vám odečteme z první platby za program.</p>`;
+  return `<div class="price"><b>${fmt(CFG.price)} Kč</b><span class="small-caps">${CFG.duration} minut</span></div>
+    <p class="price-note">Částku Vám odečteme z první platby za program.</p>`;
+}
+
+/* AI konzultant: žádný termín, jen symbolický poplatek předem. Klient musí
+   vědět, že mluví s AI a proč mu to k něčemu je — proto to píšeme rovnou,
+   ne drobným písmem pod čarou. Adresu, kde konzultant běží, stránka nezná;
+   dá ji server až po zaplacení. */
+function advisorHTML() {
+  /* Konzultant mluví o konkrétních číslech klienta, takže bez dokončeného
+     e-screeningu nemá o čem mluvit — a hlavně bychom nevěděli, komu odkaz
+     patří. Kdo sem přijde bez něj, je poslán na screening, ne odmítnut. */
+  const body = `<div class="twin">
+    <p><b>Nenechte se zmást.</b> ${esc(CFG.advisorName)} je vysoce inteligentní digitální kopie našeho konzultanta Marcela, kterou sám natrénoval na svých skutečných konzultacích s klienty.</p>
+    <p>Provede Vás vstupní konzultací na profesionální úrovni a můžete se ho ptát na cokoli — jak terapie probíhá, na ceny, na smlouvu i na vedlejší účinky. Na rozdíl od živého konzultanta nemusíte čekat na termín. O vhodnosti terapie ale vždycky rozhoduje lékař.</p>
+    <p>Konzultaci spustíte hned po zaplacení a platí ${CFG.advisorHours} hodin. Když zrovna spěcháte, nevadí — během té doby se k ní vrátíte a projdete si ji znovu.</p>`;
+  if (!S.screeningId) {
+    return body + `<p class="fine">Konzultace navazuje na vyplněný e-screening — ${esc(CFG.advisorName)} mluví o Vašich konkrétních číslech. Vyplňte ho prosím nejdřív, nebo si vyberte konzultanta.</p></div>`;
+  }
+  return body + `</div>${formHTML()}`;
+}
 function slotsHTML(withForm = true) {
   if (!slotCache) {
     loadSlots();
@@ -404,8 +539,11 @@ function uf(key, label, o = {}) {
 }
 
 function formHTML() {
+  const ai = S.booking.type === 'advisor';
   const slot = S.booking.slot ? new Date(S.booking.slot) : null;
-  const pick = slot
+  const pick = ai
+    ? `<p class="picked">${icon('i-check')}<span>Konzultace s <b>${esc(CFG.advisorWith)}</b> za <b>${fmt(CFG.advisorPrice)} Kč</b>, bez čekání na termín</span></p>`
+    : slot
     ? `<p class="picked">${icon('i-check')}<span>Vybráno: <b>${DOW[slot.getDay()]} ${slot.getDate()}. ${slot.getMonth() + 1}.</b> v <b>${pad2(slot.getHours())}:${pad2(slot.getMinutes())}</b></span></p>`
     : `<p class="fine">Vyberte si čas výše a pak rezervaci potvrďte.</p>`;
   return `<div class="bform">
@@ -416,10 +554,10 @@ function formHTML() {
     <div class="ufrow one">${uf('street', 'Ulice a číslo popisné', { autocomplete: 'street-address', placeholder: 'Chlumčanského 497/5' })}</div>
     <div class="ufrow">${uf('city', 'Město', { autocomplete: 'address-level2', placeholder: 'Praha 8-Libeň' })}
       ${uf('zip', 'PSČ', { inputmode: 'numeric', autocomplete: 'postal-code', placeholder: '180 00' })}</div>
-    <p class="fine">Telefon potřebujeme na SMS připomínku 24 hodin před konzultací, adresu na daňový doklad.</p>
+    <p class="fine">${ai ? 'Adresu potřebujeme na daňový doklad, e-mail na odkaz ke konzultaci.' : 'Telefon potřebujeme na SMS připomínku 24 hodin před konzultací, adresu na daňový doklad.'}</p>
     <label class="cbox"><input type="checkbox" id="c-book" data-consent="bookConsent" ${S.a.bookConsent ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
       <span>Souhlasím se zpracováním uvedených údajů za účelem rezervace konzultace a s tím, aby mě Aeternum Clinic v této věci kontaktovala. Více v <a href="${CFG.gdprUrl}" target="_blank" rel="noopener" style="color:var(--ink)">zásadách zpracování osobních údajů</a>.</span></label>
-    <button type="button" class="btn pri" id="bookBtn"${slot ? '' : ' disabled'}>Rezervovat termín</button>
+    <button type="button" class="btn pri" id="bookBtn"${ai || slot ? '' : ' disabled'}>${ai ? `Objednat za ${fmt(CFG.advisorPrice)} Kč` : 'Rezervovat termín'}</button>
     <span class="err" id="bookErr" role="alert"></span></div>`;
 }
 
@@ -436,14 +574,20 @@ function holdText(h) {
 }
 
 function paymentHTML() {
-  const h = S.booking.hold, d = new Date(S.booking.slot);
-  return `<span class="eyebrow">Zbývá zaplatit</span><h3>Termín držíme pro Vás</h3>
+  const h = S.booking.hold, ai = S.booking.type === 'advisor';
+  const d = ai ? null : new Date(S.booking.slot);
+  /* AI konzultace nic nedrží, takže se ani nemá co uvolnit — proto tu není
+     lhůta a shrnutí je o jeden řádek kratší. */
+  return `<span class="eyebrow">Zbývá zaplatit</span><h3>${ai ? 'Konzultaci spustíte po zaplacení' : 'Termín držíme pro Vás'}</h3>
     <dl class="summ">
-      <dt>Termín</dt><dd>${DOW_SHORT[d.getDay()]} ${d.getDate()}. ${d.getMonth() + 1}. · ${pad2(d.getHours())}:${pad2(d.getMinutes())}</dd>
-      <dt>Forma</dt><dd>${S.booking.type === 'online' ? 'Online' : 'Osobně'}</dd>
-      <dt>Částka</dt><dd>${fmt(h.amount || CFG.price)} Kč</dd>
+      ${ai ? `<dt>Konzultace</dt><dd>${esc(CFG.advisorName)}</dd>`
+        : `<dt>Termín</dt><dd>${DOW_SHORT[d.getDay()]} ${d.getDate()}. ${d.getMonth() + 1}. · ${pad2(d.getHours())}:${pad2(d.getMinutes())}</dd>
+      <dt>Forma</dt><dd>${S.booking.type === 'online' ? 'Online' : 'Osobně'}</dd>`}
+      <dt>Částka</dt><dd>${fmt(h.amount || (ai ? CFG.advisorPrice : CFG.price)) } Kč</dd>
     </dl>
-    <div class="hold"><span class="dot"></span><span>Po zaplacení prosím nezavírejte toto okno — čeká na Vás ještě krátký vstupní dotazník. Termín Vám držíme ${holdText(h)}. Jakmile platba dorazí, pošleme Vám potvrzení a pozvánku do kalendáře.</span></div>
+    <div class="hold"><span class="dot"></span><span>${ai
+      ? `Po zaplacení prosím nezavírejte toto okno — odkaz ke konzultaci se otevře rovnou tady a zároveň Vám přijde e-mailem. Platí ${CFG.advisorHours} hodin, takže nic nespěchá.`
+      : `Po zaplacení prosím nezavírejte toto okno — čeká na Vás ještě krátký vstupní dotazník. Termín Vám držíme ${holdText(h)}. Jakmile platba dorazí, pošleme Vám potvrzení a pozvánku do kalendáře.`}</span></div>
     <div class="paychoice">
       <p class="small-caps" style="margin-bottom:12px">Vyberte způsob platby</p>
       ${h.checkoutUrl ? `<div class="payopt">
@@ -677,11 +821,28 @@ function managePanelHTML() {
     <button type="button" class="btn ghost" style="margin-top:10px" data-act="mcancelmode">Zpět</button>
     <span class="err" id="manageErr" role="alert"></span>`;
 
-  return head + docsHTML() + `<button type="button" class="btn pri" style="margin-top:22px" data-act="mreschedule">Přesunout termín</button>
+  return head + labHTML() + docsHTML() + `<button type="button" class="btn pri" style="margin-top:22px" data-act="mreschedule">Přesunout termín</button>
     <button type="button" class="btn ghost" style="margin-top:10px" data-act="mcancel">Zrušit rezervaci</button>
     <p class="fine" style="margin-top:16px">${new Date(M.slot).getTime() < Date.now()
       ? 'Původní konzultace proběhla bez Vás — nový termín si vyberte, kdy se Vám hodí. Platit znovu nic nebudete.'
-      : `Změnit termín jde až do hodiny před začátkem. Potom nám zavolejte na ${esc(CFG.phone)}.`}</p>`;
+      : `Přesunout nebo zrušit jde zdarma až do ${CFG.minHours} hodin před začátkem, a vždycky tady — ne telefonem. Když to nestihnete, napište nám na ${esc(CFG.email)}.`}</p>`;
+}
+
+/* Potvrzení odběru krve. Bez něj nemá vyšetření smysl: laboratoř potřebuje
+   na výsledky zhruba dva dny a lékař bez nich terapii neschválí. Je to tlačítko
+   na jedno kliknutí a zpátky se vzít nedá — kdo se překlikne, napíše nám. */
+function labHTML() {
+  const M = S.manage || {};
+  if (!M.labNeeded) return '';
+  if (M.labDone) return `<div class="labok">${icon('i-check')}<span>Odběr máte potvrzený. Výsledky bude mít lékař u vyšetření.</span></div>`;
+  const dokdy = M.labDeadline ? manageWhen(M.labDeadline) : '';
+  return `<div class="labask">
+    <p class="small-caps">Odběr krve</p>
+    <p class="lead" style="margin-top:8px">Až budete mít odběr za sebou, dejte nám tu o tom vědět. Podle toho víme, že má vyšetření smysl.</p>
+    ${dokdy ? `<p class="fine" style="margin-top:10px">Stihnout ho musíte <b>do ${esc(dokdy)}</b>. Kdo odběr nepotvrdí, tomu termín musíme přesunout.</p>` : ''}
+    <button type="button" class="btn pri" style="margin-top:14px" data-act="mlabdone">Byl jsem na odběru</button>
+    <span class="err" id="labErr" role="alert"></span>
+  </div>`;
 }
 
 async function loadManage(vs, t) {
@@ -705,13 +866,27 @@ async function loadManage(vs, t) {
 document.addEventListener('click', async e => {
   const b = e.target.closest('button, a'); if (!b) return;
   if (b.dataset.act === 'restart') { resetAll(); return; }
-  if (b.dataset.btype) { S.booking.type = b.dataset.btype; S.booking.slot = null; slotCache = null; rerender(); loadSlots(); return; }
+  if (b.dataset.btype) { S.booking.type = b.dataset.btype; S.booking.slot = null; slotCache = null; rerender(); if (b.dataset.btype !== 'advisor') loadSlots(); return; }
   if (b.dataset.day) { S.booking.day = b.dataset.day; S.booking.slot = null; rerender(); return; }
   if (b.dataset.slot) { S.booking.slot = b.dataset.slot; rerender(); return; }
   if (b.id === 'bookBtn') { await submitBooking(b); return; }
   if (b.dataset.act === 'mreschedule') { S.manage.mode = 'reschedule'; S.booking.slot = null; S.booking.day = null; slotCache = null; rerender(); loadSlots(); return; }
   if (b.dataset.act === 'mcancel') { S.manage.mode = 'cancel'; rerender(); return; }
   if (b.dataset.act === 'mcancelmode') { S.manage.mode = null; rerender(); return; }
+  if (b.dataset.act === 'mlabdone') {
+    const M = S.manage || {};
+    b.disabled = true;
+    try {
+      await api('labDone', { vs: M.vs, t: M.t }, 15000);
+      S.manage = Object.assign({}, M, { labDone: new Date().toISOString() });
+      rerender();
+    } catch (e) {
+      b.disabled = false;
+      const err = document.getElementById('labErr');
+      if (err) err.textContent = 'Potvrzení se nepodařilo uložit. Zkuste to prosím ještě jednou.';
+    }
+    return;
+  }
   if (b.id === 'reschedBtn') { await submitReschedule(b); return; }
   if (b.id === 'cancelBtn') { await submitCancel(b); return; }
   if (b.id === 'labBtn') { await submitLabData(b); return; }
@@ -735,7 +910,8 @@ document.addEventListener('change', e => {
 
 /* ---------- termíny ---------- */
 async function loadSlots() {
-  if (!S.booking.type) return;
+  // AI konzultant termín nepotřebuje, takže se na volné sloty vůbec neptáme.
+  if (!S.booking.type || S.booking.type === 'advisor') return;
   try {
     slotCache = CFG.apiUrl ? ((await api('slots', { type: S.booking.type }, 20000)).slots || []) : demoSlots();
   } catch (e) { slotCache = demoSlots(); }
@@ -774,7 +950,9 @@ const BOOK_ERRORS = {
   busy: 'Zrovna teď rezervuje někdo jiný. Zkuste to prosím za chvíli.',
   sheet_missing: 'Rezervační systém se právě připravuje. Zavolejte nám prosím na ',
   calendar_missing: 'Rezervační systém se právě připravuje. Zavolejte nám prosím na ',
-  rate_limited: 'Příliš mnoho pokusů. Zkuste to prosím za chvíli.'
+  rate_limited: 'Příliš mnoho pokusů. Zkuste to prosím za chvíli.',
+  need_screening: 'Konzultace s AI konzultantem navazuje na vyplněný e-screening. Vyplňte ho prosím nejdřív, nebo si vyberte konzultanta.',
+  advisor_off: 'AI konzultanta právě dolaďujeme. Vyberte si prosím konzultanta — online nebo osobně v Praze.'
 };
 function bookError(x) {
   const code = x && x.code;
@@ -784,8 +962,9 @@ function bookError(x) {
 }
 async function submitBooking(btn) {
   const err = m => { const el = $('#bookErr'); if (el) el.textContent = m; };
+  const ai = S.booking.type === 'advisor';
   err('');
-  if (!S.booking.slot) return err('Vyberte prosím čas konzultace.');
+  if (!ai && !S.booking.slot) return err('Vyberte prosím čas konzultace.');
   if (!S.a.name || !S.a.name.trim()) return err('Vyplňte prosím jméno a příjmení.');
   if (!/\s/.test(S.a.name.trim())) return err('Doplňte prosím i příjmení.');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((S.a.email || '').trim())) return err('Zadejte prosím platný e-mail.');
@@ -796,28 +975,32 @@ async function submitBooking(btn) {
   if (!S.a.bookConsent) return err('Pro rezervaci je potřeba souhlas.');
 
   btn.disabled = true;
-  btn.innerHTML = '<span class="sp"></span>Blokuji termín…';
+  btn.innerHTML = ai ? '<span class="sp"></span>Připravuji platbu…' : '<span class="sp"></span>Blokuji termín…';
   const wait = document.createElement('p');
   wait.className = 'fine';
   wait.style.textAlign = 'center';
-  wait.textContent = 'Držíme pro Vás termín a připravujeme platbu, chvilku strpení.';
+  wait.textContent = ai ? 'Připravujeme platbu, chvilku strpení.' : 'Držíme pro Vás termín a připravujeme platbu, chvilku strpení.';
   btn.insertAdjacentElement('afterend', wait);
-  const cleanup = () => { wait.remove(); btn.innerHTML = 'Rezervovat termín'; };
+  const cleanup = () => { wait.remove(); btn.innerHTML = ai ? `Objednat za ${fmt(CFG.advisorPrice)} Kč` : 'Rezervovat termín'; };
   try {
     let hold;
     if (CFG.apiUrl) {
       hold = await api('hold', {
-        id: S.screeningId, slot: S.booking.slot, type: S.booking.type,
+        id: S.screeningId, kind: ai ? 'advisor' : 'consult',
+        slot: ai ? '' : S.booking.slot, type: S.booking.type,
         name: S.a.name.trim(), email: S.a.email.trim(), phone: S.a.phone.trim(),
         street: S.a.street.trim(), city: S.a.city.trim(), zip: (S.a.zip || '').replace(/\s/g, ''),
         consent: true, src: 'booking'
       }, 45000);
     } else {
       const vs = String(Date.now()).slice(-8);
-      hold = { vs, amount: CFG.price, account: '2801448429/2010', spayd: spaydFor(vs, CFG.price), checkoutUrl: '' };
+      const amount = ai ? CFG.advisorPrice : CFG.price;
+      hold = { vs, amount, account: '2801448429/2010', spayd: spaydFor(vs, amount), checkoutUrl: '' };
     }
     if (!hold || !hold.vs) throw Object.assign(new Error('no_vs'), { code: 'no_vs' });
     S.booking.hold = hold;
+    // Kdo si konzultaci koupil dřív a vrátil se, nemá platit podruhé.
+    if (hold.alreadyPaid) { S.booking.paid = true; S.booking.advisorUrl = hold.advisorUrl || ''; }
     rerender();
   } catch (x) {
     btn.disabled = false; cleanup();
@@ -871,6 +1054,8 @@ function startPolling() {
         if (j.type) S.booking.type = j.type;
         if (j.meet) S.booking.meet = j.meet;
         if (j.manageUrl) S.booking.manageUrl = j.manageUrl;
+        if (j.advisorUrl) S.booking.advisorUrl = j.advisorUrl;
+        if (j.kind === 'advisor') S.booking.type = 'advisor';
         S.booking.needsData = !!j.needsData;
         if (j.minHours) S.booking.minHours = j.minHours;
         if (j.email && !S.a.email) S.a.email = j.email;
