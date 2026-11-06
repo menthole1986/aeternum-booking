@@ -389,6 +389,9 @@ const CFG = {
   advisorName: 'Marcel AI',                     // 1. pád
   advisorWith: 'Marcelem AI',                   // 7. pád — „s Marcelem AI"; samotné AI se neskloňuje
   advisorPrice: 121,                            // 100 Kč + 21 % DPH
+  // Obchodní podmínky. Server posílá platnou adresu; tahle je záloha,
+  // kdyby odpověď nedorazila. Prázdno = odkaz se nikde neukáže.
+  termsUrl: 'https://www.aeternumclinic.cz/obchodni-podminky',
   advisorHours: 72,                             // jak dlouho po zaplacení se dá ke konzultaci vracet
   duration: 30,
   holdMinutes: 120,
@@ -558,7 +561,21 @@ function formHTML() {
     <label class="cbox"><input type="checkbox" id="c-book" data-consent="bookConsent" ${S.a.bookConsent ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
       <span>Souhlasím se zpracováním uvedených údajů za účelem rezervace konzultace a s tím, aby mě Aeternum Clinic v této věci kontaktovala. Více v <a href="${CFG.gdprUrl}" target="_blank" rel="noopener" style="color:var(--ink)">zásadách zpracování osobních údajů</a>.</span></label>
     <button type="button" class="btn pri" id="bookBtn"${ai || slot ? '' : ' disabled'}>${ai ? `Objednat za ${fmt(CFG.advisorPrice)} Kč` : 'Rezervovat termín'}</button>
+    ${podminkyVeta()}
     <span class="err" id="bookErr" role="alert"></span></div>`;
+}
+
+/* Odkaz na obchodní podmínky. Server posílá platnou adresu, CFG má zálohu;
+   když ani jedno není, odkaz se neukáže — vést klienta na stránku, která
+   neexistuje, je horší než neodkazovat nikam. */
+function podminkyUrl() {
+  try { return String((S.booking && S.booking.termsUrl) || CFG.termsUrl || '').trim(); }
+  catch (e) { return String(CFG.termsUrl || '').trim(); }
+}
+function podminkyVeta() {
+  const u = podminkyUrl();
+  return u ? '<p class="fine" style="margin-top:10px">Objednávkou potvrzujete, že jste se seznámil'
+    + '(a) s <a href="' + esc(u) + '" target="_blank" rel="noopener">obchodními podmínkami</a>.</p>' : '';
 }
 
 /* Dokdy termín držíme. Bere se čas z odpovědi serveru, ne pevné číslo —
