@@ -358,12 +358,12 @@ html,body{background:var(--ground);color:var(--ink)}
   </header>
   <main><div class="screen"><div class="split">
     <div>
-      <span class="eyebrow">První krok</span>
-      <h1 class="h-l">Vstupní<br><span class="light">konzultace</span></h1>
-      <p class="lead" style="margin-top:clamp(16px,calc(1.4*var(--u)),calc(28px*var(--k)))">S naším AI konzultantem, nebo s koordinátorem péče. Tak jako tak proberete:</p>
-      <div class="bul"><div>Seznámení s terapií redukce hmotnosti</div><div>Individuální nastavení Vašeho programu</div></div>
-      <p class="fine" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">S AI konzultantem si můžete povídat hned po zaplacení 121 Kč a odkaz platí 72 hodin. Konzultace s koordinátorem trvá 30 minut, proběhne online nebo osobně v Praze a rezervace je platná po uhrazení poplatku. Obě částky Vám odečteme z první platby za program.</p>
-      <span class="eyebrow" style="margin-top:clamp(38px,calc(3.2*var(--u)),calc(58px*var(--k)))">Druhý krok</span><p class="notice" style="margin-top:clamp(10px,calc(0.8*var(--u)),calc(14px*var(--k)))"><span>⚠️</span><span>Pro posouzení vhodnosti terapie Vás čeká krevní screening a lékařské vyšetření (4 970 Kč). Hradí se až po vstupní konzultaci, teď neplatíte nic navíc.</span></p><p class="reassure" style="margin-top:12px"><b>Ze screeningu nemusíte mít žádné obavy.</b> Ověřujeme jím, že je pro Vás terapie bezpečná a v jaké dávce začít.</p>
+      <span class="eyebrow" id="heroStep">První krok</span>
+      <h1 class="h-l" id="heroTitle">Vstupní<br><span class="light">konzultace</span></h1>
+      <p class="lead" id="heroLead" style="margin-top:clamp(16px,calc(1.4*var(--u)),calc(28px*var(--k)))">S naším AI konzultantem, nebo s koordinátorem péče. Tak jako tak proberete:</p>
+      <div class="bul" id="heroBul"><div>Seznámení s terapií redukce hmotnosti</div><div>Individuální nastavení Vašeho programu</div></div>
+      <p class="fine" id="heroFine" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">S AI konzultantem si můžete povídat hned po zaplacení 121 Kč a odkaz platí 72 hodin. Konzultace s koordinátorem trvá 30 minut, proběhne online nebo osobně v Praze a rezervace je platná po uhrazení poplatku. Obě částky Vám odečteme z první platby za program.</p>
+      <div id="heroStep2"><span class="eyebrow" style="margin-top:clamp(38px,calc(3.2*var(--u)),calc(58px*var(--k)))">Druhý krok</span><p class="notice" style="margin-top:clamp(10px,calc(0.8*var(--u)),calc(14px*var(--k)))"><span>⚠️</span><span>Pro posouzení vhodnosti terapie Vás čeká krevní screening a lékařské vyšetření (4 970 Kč). Hradí se až po vstupní konzultaci, teď neplatíte nic navíc.</span></p><p class="reassure" style="margin-top:12px"><b>Ze screeningu nemusíte mít žádné obavy.</b> Ověřujeme jím, že je pro Vás terapie bezpečná a v jaké dávce začít.</p></div>
     </div>
     <div class="panel" id="panel"></div>
   </div></div></main>
@@ -375,6 +375,8 @@ html,body{background:var(--ground);color:var(--ink)}
    Aeternum Clinic — rezervace vstupní konzultace
    Samostatná stránka se stejným rezervačním krokem jako screening.
    Parametry URL: ?id=SC260920-ABC123 (předvyplní údaje ze screeningu)
+                  ?kind=exam (rezervace lékařského vyšetření místo konzultace);
+                  takový odkaz dostane klient v potvrzení vstupní konzultace
    ========================================================================== */
 
 const URLP = new URLSearchParams(location.search);
@@ -394,6 +396,8 @@ const CFG = {
   termsUrl: 'https://www.aeternumclinic.cz/_files/ugd/58be90_9f9915d451c54eb09770f75488dd0a31.pdf',
   advisorHours: 72,                             // jak dlouho po zaplacení se dá ke konzultaci vracet
   duration: 30,
+  // Vstupní screening: v ceně je odběr krve v Synlabu i lékařské vyšetření.
+  examPrice: 4970,
   holdMinutes: 120,
   leadDays: 14,
   minHours: 24,
@@ -402,6 +406,7 @@ const CFG = {
     0: [['11:00', '14:00']], 1: [['11:00', '13:00'], ['18:00', '20:00']], 2: [['07:00', '10:00'], ['18:00', '20:00']],
     3: [['11:00', '14:00']], 4: [], 5: [], 6: [['11:00', '14:00']]
   },
+  examHours: { 5: [['14:00', '18:00']] },       // vyšetření: zatím jen pátek odpoledne
   iban: 'CZ5020100000002801448429',
   phone: '+420775481700',
   email: 'info@aeternumclinic.cz',
@@ -418,7 +423,13 @@ const icon = id => `<svg aria-hidden="true"><use href="#${id}"/></svg>`;
 const localIso = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 
 const newSid = () => (self.crypto && crypto.randomUUID) ? crypto.randomUUID() : Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
-const blank = () => ({ sid: newSid(), screeningId: URLP.get('id') || '', a: {}, booking: { type: null, slot: null, day: null }, manage: null });
+/* Stránka obsluhuje dva druhy termínu: vstupní konzultaci a lékařské
+   vyšetření. Na vyšetření se přepíná ?kind=exam (nebo ?druh=vysetreni) —
+   takový odkaz dostane klient v potvrzení vstupní konzultace. */
+const urlKind = () => (URLP.get('kind') === 'exam' || URLP.get('druh') === 'vysetreni') ? 'exam' : 'consult';
+const isExam = () => S.kind === 'exam';
+const kindPrice = () => isExam() ? CFG.examPrice : CFG.price;
+const blank = () => ({ sid: newSid(), kind: urlKind(), screeningId: URLP.get('id') || '', a: {}, booking: { type: null, slot: null, day: null }, manage: null });
 let S = blank();
 function save() { try { sessionStorage.setItem(CFG.storageKey, JSON.stringify(S)); } catch (e) {} }
 function load() { try { const raw = sessionStorage.getItem(CFG.storageKey); if (raw) S = Object.assign(blank(), JSON.parse(raw)); } catch (e) {} }
@@ -481,6 +492,18 @@ function panelHTML() {
   if (S.verifying && B.hold) return verifyHTML();
   if (B.hold) return paymentHTML();
 
+  /* U vyšetření se nevybírá mezi AI a člověkem — vyšetřuje lékař. Volí se
+     jen forma, a to obě: lékař má v obou případech stejné podklady. */
+  if (isExam()) {
+    return `<h3 class="grad" style="margin-top:0">Lékařské vyšetření</h3>
+      ${priceHTML(B.type)}
+      <div class="seg2" role="group" aria-label="Forma vyšetření">
+        <button type="button" data-btype="online" aria-pressed="${B.type === 'online'}">Online</button>
+        <button type="button" data-btype="osobne" aria-pressed="${B.type === 'osobne'}">Osobně v Praze</button>
+      </div>
+      ${B.type ? slotsHTML() : `<p class="fine" style="margin-top:16px">Vyberte formu vyšetření a ukážu Vám volné termíny.</p>`}`;
+  }
+
   return `<h3 class="grad" style="margin-top:0">Vstupní konzultace</h3>
     ${priceHTML(B.type)}
     <div class="seg3" role="group" aria-label="Podoba konzultace">
@@ -495,6 +518,8 @@ function panelHTML() {
    konzultace 121 nebo 570 a jedno číslo by lhalo. Do té doby ji nese tlačítko. */
 function priceHTML(type) {
   if (!type) return '';
+  if (isExam()) return `<div class="price"><b>${fmt(CFG.examPrice)} Kč</b><span class="small-caps">${CFG.duration} minut</span></div>
+    <p class="price-note">Zahrnuje odběr krve v Synlabu i lékařské vyšetření. Osvobozeno od DPH.</p>`;
   if (type === 'advisor') return `<div class="price"><b>${fmt(CFG.advisorPrice)} Kč</b><span class="small-caps">hned teď</span></div>
     <p class="price-note">Částku Vám odečteme z první platby za program.</p>`;
   return `<div class="price"><b>${fmt(CFG.price)} Kč</b><span class="small-caps">${CFG.duration} minut</span></div>
@@ -563,9 +588,9 @@ function formHTML() {
     <div class="ufrow one">${uf('street', 'Ulice a číslo popisné', { autocomplete: 'street-address', placeholder: 'Chlumčanského 497/5' })}</div>
     <div class="ufrow">${uf('city', 'Město', { autocomplete: 'address-level2', placeholder: 'Praha 8-Libeň' })}
       ${uf('zip', 'PSČ', { inputmode: 'numeric', autocomplete: 'postal-code', placeholder: '180 00' })}</div>
-    <p class="fine">${ai ? 'Adresu potřebujeme na daňový doklad, e-mail na odkaz ke konzultaci.' : 'Telefon potřebujeme na SMS připomínku 24 hodin před konzultací, adresu na daňový doklad.'}</p>
+    <p class="fine">${ai ? 'Adresu potřebujeme na daňový doklad, e-mail na odkaz ke konzultaci.' : `Telefon potřebujeme na SMS připomínku 24 hodin před ${isExam() ? 'vyšetřením' : 'konzultací'}, adresu na daňový doklad.`}</p>
     <label class="cbox"><input type="checkbox" id="c-book" data-consent="bookConsent" ${S.a.bookConsent ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
-      <span>Souhlasím se zpracováním uvedených údajů za účelem rezervace konzultace a s tím, aby mě Aeternum Clinic v této věci kontaktovala. Více v <a href="${CFG.gdprUrl}" target="_blank" rel="noopener" style="color:var(--ink)">zásadách zpracování osobních údajů</a>.</span></label>
+      <span>Souhlasím se zpracováním uvedených údajů za účelem rezervace ${isExam() ? 'vyšetření' : 'konzultace'} a s tím, aby mě Aeternum Clinic v této věci kontaktovala. Více v <a href="${CFG.gdprUrl}" target="_blank" rel="noopener" style="color:var(--ink)">zásadách zpracování osobních údajů</a>.</span></label>
     <button type="button" class="btn pri" id="bookBtn"${ai || slot ? '' : ' disabled'}>${ai ? `Objednat za ${fmt(CFG.advisorPrice)} Kč` : 'Rezervovat termín'}</button>
     ${podminkyVeta()}
     <span class="err" id="bookErr" role="alert"></span></div>`;
@@ -606,7 +631,7 @@ function paymentHTML() {
       ${ai ? `<dt>Konzultace</dt><dd>${esc(CFG.advisorName)}</dd>`
         : `<dt>Termín</dt><dd>${DOW_SHORT[d.getDay()]} ${d.getDate()}. ${d.getMonth() + 1}. · ${pad2(d.getHours())}:${pad2(d.getMinutes())}</dd>
       <dt>Forma</dt><dd>${S.booking.type === 'online' ? 'Online' : 'Osobně'}</dd>`}
-      <dt>Částka</dt><dd>${fmt(h.amount || (ai ? CFG.advisorPrice : CFG.price)) } Kč</dd>
+      <dt>Částka</dt><dd>${fmt(h.amount || (ai ? CFG.advisorPrice : kindPrice())) } Kč</dd>
     </dl>
     <div class="hold"><span class="dot"></span><span>${ai
       ? `Po zaplacení prosím nezavírejte toto okno — odkaz ke konzultaci se otevře rovnou tady a zároveň Vám přijde e-mailem. Platí ${CFG.advisorHours} hodin, takže nic nespěchá.`
@@ -622,7 +647,7 @@ function paymentHTML() {
       <div class="payopt">
         <div class="payhead"><b>Převodem přes QR kód</b><p class="fine">Naskenujte QR kód v bankovní aplikaci. Zvolte možnost okamžité platby. Platbu obdržíme obvykle ihned.</p></div>
         <div class="qrwrap"><div class="qr" id="payQr" aria-label="QR platba"></div>
-          <dl><dt>Částka</dt><dd>${fmt(h.amount || CFG.price)} Kč</dd>
+          <dl><dt>Částka</dt><dd>${fmt(h.amount || kindPrice())} Kč</dd>
             <dt>Účet</dt><dd>${esc(h.account || '2801448429/2010')}</dd>
             <dt>Var. symbol</dt><dd>${esc(h.vs)}</dd></dl></div>
       </div>
@@ -936,7 +961,7 @@ async function loadSlots() {
   // AI konzultant termín nepotřebuje, takže se na volné sloty vůbec neptáme.
   if (!S.booking.type || S.booking.type === 'advisor') return;
   try {
-    slotCache = CFG.apiUrl ? ((await api('slots', { type: S.booking.type }, 20000)).slots || []) : demoSlots();
+    slotCache = CFG.apiUrl ? ((await api('slots', { type: S.booking.type, kind: S.kind }, 20000)).slots || []) : demoSlots();
   } catch (e) { slotCache = demoSlots(); }
   rerender();
 }
@@ -948,7 +973,7 @@ function demoSlots() {
   const from = new Date(now.getTime() + CFG.minHours * 3600e3);
   for (let dayOff = 0; dayOff <= CFG.leadDays; dayOff++) {
     const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOff);
-    (CFG.hours[day.getDay()] || []).forEach(([a, z]) => {
+    ((isExam() ? CFG.examHours : CFG.hours)[day.getDay()] || []).forEach(([a, z]) => {
       const [ah, am] = a.split(':').map(Number), [zh, zm] = z.split(':').map(Number);
       let t = new Date(day); t.setHours(ah, am, 0, 0);
       const end = new Date(day); end.setHours(zh, zm, 0, 0);
@@ -1009,7 +1034,7 @@ async function submitBooking(btn) {
     let hold;
     if (CFG.apiUrl) {
       hold = await api('hold', {
-        id: S.screeningId, kind: ai ? 'advisor' : 'consult',
+        id: S.screeningId, kind: ai ? 'advisor' : S.kind,
         slot: ai ? '' : S.booking.slot, type: S.booking.type,
         name: S.a.name.trim(), email: S.a.email.trim(), phone: S.a.phone.trim(),
         street: S.a.street.trim(), city: S.a.city.trim(), zip: (S.a.zip || '').replace(/\s/g, ''),
@@ -1017,7 +1042,7 @@ async function submitBooking(btn) {
       }, 45000);
     } else {
       const vs = String(Date.now()).slice(-8);
-      const amount = ai ? CFG.advisorPrice : CFG.price;
+      const amount = ai ? CFG.advisorPrice : kindPrice();
       hold = { vs, amount, account: '2801448429/2010', spayd: spaydFor(vs, amount), checkoutUrl: '' };
     }
     if (!hold || !hold.vs) throw Object.assign(new Error('no_vs'), { code: 'no_vs' });
@@ -1034,7 +1059,8 @@ async function submitBooking(btn) {
 
 /* ---------- platba ---------- */
 function spaydFor(vs, amount) {
-  return 'SPD*1.0*ACC:' + CFG.iban + '*AM:' + Number(amount).toFixed(2) + '*CC:CZK*X-VS:' + vs + '*MSG:AETERNUM KONZULTACE*RN:AETERNUM CLINIC';
+  const msg = isExam() ? 'AETERNUM VYSETRENI' : 'AETERNUM KONZULTACE';
+  return 'SPD*1.0*ACC:' + CFG.iban + '*AM:' + Number(amount).toFixed(2) + '*CC:CZK*X-VS:' + vs + '*MSG:' + msg + '*RN:AETERNUM CLINIC';
 }
 const QR_LIB = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
 let qrPromise = null;
@@ -1048,7 +1074,7 @@ function loadQrLib() {
 }
 async function showQr() {
   const box = $('#payQr'), h = S.booking.hold; if (!box || !h) return;
-  const payload = h.spayd || spaydFor(h.vs, h.amount || CFG.price);
+  const payload = h.spayd || spaydFor(h.vs, h.amount || kindPrice());
   try {
     await loadQrLib();
     const q = window.qrcode(0, 'M'); q.addData(payload); q.make();
@@ -1155,9 +1181,45 @@ async function attendanceAction(att, vs, t, r) {
   }
 }
 
+/* Levý sloupec je napsaný pro konzultaci. U vyšetření ho přepíšeme — jiný
+   nadpis, jiný výčet a žádný „druhý krok“, protože vyšetření je ten druhý
+   krok. Texty jsou tady a ne v HTML proto, aby se stránka pro konzultaci
+   vykreslila i bez javascriptu tak, jak má. */
+const EXAM_HERO = {
+  step: 'Druhý krok',
+  title: 'Lékařské<br><span class="light">vyšetření</span>',
+  lead: 'Vstupní screening u lékaře, který:',
+  bullets: ['Projde s Vámi výsledky krevních testů', 'Posoudí vhodnost terapie a nastaví dávkování', 'Vystaví recept a plán sledování'],
+  fine: 'Cena zahrnuje odběr krve v Synlabu i lékařské vyšetření. Vyšetření trvá 30 minut a může proběhnout online nebo osobně v Praze. Žádanku na odběr Vám pošleme hned po úhradě — odběr musíte stihnout nejpozději dva dny před vyšetřením.'
+};
+function applyKind() {
+  document.title = (isExam() ? 'Lékařské vyšetření' : 'Vstupní konzultace') + ' · Aeternum Clinic';
+  if (!isExam()) return;
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  set('heroStep', EXAM_HERO.step);
+  set('heroTitle', EXAM_HERO.title);
+  set('heroLead', EXAM_HERO.lead);
+  set('heroBul', EXAM_HERO.bullets.map(b => `<div>${esc(b)}</div>`).join(''));
+  set('heroFine', EXAM_HERO.fine);
+  const step2 = document.getElementById('heroStep2');
+  if (step2) step2.remove();
+}
+
 /* ---------- start ---------- */
 load();
 if (URLP.get('id')) S.screeningId = URLP.get('id');
+/* Druh termínu řídí adresa, ne uložený stav. Kdo si v jedné záložce
+   rezervoval konzultaci a pak otevřel odkaz na vyšetření, musí dostat
+   vyšetření — a rozdělanou volbu formy a termínu k tomu zahodíme, patřila
+   k něčemu jinému. */
+const kindFromUrl = urlKind();
+if (S.kind !== kindFromUrl) {
+  S.kind = kindFromUrl;
+  S.booking = { type: null, slot: null, day: null };
+  slotCache = null;
+  save();
+}
+applyKind();
 
 const attAction = URLP.get('att');
 const manageVs = URLP.get('vs'), manageT = URLP.get('t');
@@ -1173,7 +1235,7 @@ if (attAction && manageVs && manageT) {
 
   const paidVs = URLP.get('paid');
   if (paidVs && !S.booking.paid) {
-    if (!S.booking.hold || S.booking.hold.vs !== paidVs) S.booking.hold = { vs: paidVs, amount: CFG.price };
+    if (!S.booking.hold || S.booking.hold.vs !== paidVs) S.booking.hold = { vs: paidVs, amount: kindPrice() };
     S.verifying = true;
     S.verifyStep = 0;
   }
