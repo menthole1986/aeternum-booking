@@ -463,9 +463,15 @@ function panelHTML() {
   }
   if (B.paid) {
     const d = new Date(B.slot);
+    /* Bez platného termínu se žádný nevypisuje. Když sem doklepal někdo bez
+       termínu (platba za něco, co termín nemá), stránka si dřív datum
+       domyslela z prázdné hodnoty a klient četl „čtvrtek 1. ledna, 01:00,
+       osobně v Praze“ — termín, který nikde neexistuje. */
+    const kdy = isNaN(d.getTime()) ? ''
+      : `${esc(DOW[d.getDay()])} ${d.getDate()}. ${esc(MON[d.getMonth()])}, ${pad2(d.getHours())}:${pad2(d.getMinutes())} — ${B.type === 'online' ? 'online' : 'osobně v Praze'}.`;
     return `<div class="success"><div class="tick">${icon('i-check')}</div><span class="eyebrow">Potvrzeno</span>
-      <h3>Termín je Váš</h3>
-      <p class="lead" style="margin-top:14px">${esc(DOW[d.getDay()])} ${d.getDate()}. ${esc(MON[d.getMonth()])}, ${pad2(d.getHours())}:${pad2(d.getMinutes())} — ${B.type === 'online' ? 'online' : 'osobně v Praze'}.</p>
+      <h3>${kdy ? 'Termín je Váš' : 'Platba dorazila'}</h3>
+      ${kdy ? `<p class="lead" style="margin-top:14px">${kdy}</p>` : ''}
       <p class="lead" style="margin-top:12px">Potvrzení a pozvánku do kalendáře jsme poslali na <b style="color:var(--ink)">${esc(S.a.email)}</b>. Den před konzultací Vám přijde SMS připomínka.</p>
       ${B.needsData ? `<button type="button" class="btn pri" data-act="labnow" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">Pokračovat na vstupní dotazník</button>
       <p class="fine" style="margin-top:10px">Zbývá poslední krok — bez něj nemůžeme připravit žádanku ani podklady pro lékaře.</p>` : ''}
