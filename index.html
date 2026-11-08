@@ -714,7 +714,7 @@ function paymentHTML() {
 function wideMode() {
   const split = document.querySelector('.split');
   if (!split) return;
-  split.classList.toggle('wide', !!document.getElementById('labBtn') || !!document.getElementById('intakeBtn'));
+  split.classList.toggle('wide', !!document.getElementById('labBtn') || !!document.getElementById('lifeBtn') || !!document.getElementById('intakeBtn'));
 }
 function rerender() {
   $('#panel').innerHTML = panelHTML();
@@ -827,6 +827,59 @@ function labFormHTML() {
     </div>`;
 }
 
+const LIFESTYLE_Q = [
+  ['job', 'Práce a její charakter', 'Sedavá / aktivní / stresová'],
+  ['energy', 'Úroveň energie 1–10', '6'],
+  ['digestion', 'Zažívací potíže', 'Nadýmání, zácpa, pálení žáhy… / žádné'],
+  ['gyn', 'Gynekologické či hormonální potíže', 'PMOS (PCOS), inzulinová rezistence… / žádné'],
+  ['pastAttempts', 'Dřívější pokusy o hubnutí a výsledek', 'Co jste zkoušel(a) a jak to dopadlo'],
+  ['pastDrugs', 'Užíval(a) jste léky na hubnutí?', 'Ne / Saxenda, Ozempic…'],
+  ['diet', 'Typický jídelníček — snídaně, svačina, oběd, večeře, sladké', 'Klidně upřímně a stručně'],
+  ['water', 'Kolik čisté vody denně', '1,5 l'],
+  ['alcohol', 'Vztah k alkoholu', 'Nepiji / příležitostně'],
+  ['smoking', 'Kouření či nikotin', 'Nekouřím'],
+  ['limits', 'Pohybová omezení', 'Ne / bolesti zad, kolena'],
+  ['motivation', 'Co je Vaše hlavní motivace?', 'Proč do toho jdete'],
+  ['readiness', 'Jste připraven(a) změnit stravu a pohyb?', 'Ano / mám obavy z…']
+];
+
+function lifestyleFormHTML() {
+  const M = S.manage;
+  if (M.lifestyleDone) {
+    return `<div class="success"><div class="tick">${icon('i-check')}</div><span class="eyebrow">Děkujeme</span>
+      <h3>Máme to</h3>
+      <p class="lead" style="margin-top:14px">Lékař i trenér si to přečtou před Vaším vyšetřením, takže se Vás na to nebudeme ptát znovu.</p></div>`;
+  }
+  return `<span class="eyebrow">Ještě pár otázek</span><h3>Jak žijete</h3>
+    <p class="lead" style="margin-top:12px">Z těchhle odpovědí staví lékař s trenérem Váš program. Nespěchá to a nic tím neblokujete — termín máte potvrzený.</p>
+    <div class="bform" style="margin-top:18px">
+      ${LIFESTYLE_Q.map(q => `<div class="ufrow one">${uf(q[0], q[1], { placeholder: q[2] })}</div>`).join('')}
+      <button type="button" class="btn pri" id="lifeBtn">Odeslat</button>
+      <span class="err" id="manageErr" role="alert"></span>
+    </div>`;
+}
+
+async function submitLifestyle(btn) {
+  const M = S.manage, a = S.a;
+  const err = m => { const el = $('#manageErr'); if (el) el.textContent = m; };
+  err('');
+  for (const q of LIFESTYLE_Q) {
+    if (!(a[q[0]] || '').toString().trim()) return err('Vyplňte prosím: ' + q[1]);
+  }
+  const label = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Odesíláme…';
+  try {
+    const telo = { vs: M.vs, t: M.t };
+    LIFESTYLE_Q.forEach(q => { telo[q[0]] = (a[q[0]] || '').toString().trim(); });
+    await api('lifestyle', telo, 30000);
+    S.manage = Object.assign({}, M, { lifestyleDone: true, needsLifestyle: false });
+    rerender();
+  } catch (x) {
+    btn.disabled = false; btn.textContent = label;
+    err(manageError(x));
+  }
+}
+
 async function submitLabData(btn) {
   const M = S.manage;
   const err = m => { const el = $('#manageErr'); if (el) el.textContent = m; };
@@ -900,6 +953,10 @@ function managePanelHTML() {
     <p class="lead" style="margin-top:12px">Potvrzení a novou pozvánku do kalendáře jsme poslali e-mailem.</p></div>`;
 
   if ((M.needsData || M.dataDone) && M.mode !== 'reschedule' && M.mode !== 'cancel') return labFormHTML();
+  /* Lifestyle anamnéza. Totožnost a údaje pro laboratoř už máme z objednávky,
+     tohle je to ostatní — podle čeho se staví program. Nespěchá a nic
+     neblokuje, proto se ptá až tady a ne před platbou. */
+  if ((M.needsLifestyle || M.lifestyleDone) && M.mode !== 'reschedule' && M.mode !== 'cancel') return lifestyleFormHTML();
 
   const head = `<span class="eyebrow">Váš termín</span><h3>${esc(manageWhen(M.slot))}</h3>
     <p class="lead" style="margin-top:12px">${M.type === 'online' ? 'Online' : 'Osobně v Praze'} · ${CFG.duration} minut${M.status === 'čeká na platbu' ? ' · čeká na úhradu' : ''}</p>`;
@@ -992,6 +1049,7 @@ document.addEventListener('click', async e => {
   if (b.id === 'reschedBtn') { await submitReschedule(b); return; }
   if (b.id === 'cancelBtn') { await submitCancel(b); return; }
   if (b.id === 'labBtn') { await submitLabData(b); return; }
+  if (b.id === 'lifeBtn') { await submitLifestyle(b); return; }
   if (b.dataset.act === 'mskipdata') { S.manage.needsData = false; S.manage.dataDone = false; rerender(); return; }
   if (b.dataset.act === 'labnow') {
     const u = S.booking.manageUrl || '';
