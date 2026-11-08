@@ -606,37 +606,25 @@ function formHTML() {
 /* Stejné kontroly, jaké má dodatečný formulář. Mít je dvakrát je horší než
    mít je jednou, ale obě cesty posílají jiné akci a jiné pole — tady je navíc
    potřeba chytit chybu dřív, než se zabere termín. */
-const EXAM_REQUIRED = [
-  ['insurance', 'Zdravotní pojišťovna nebo její kód'],
-  ['meds', 'Jaké léky a doplňky pravidelně užíváte?'],
-  ['oncology', 'Probíhá u Vás onkologická léčba?'],
-  ['pregnancy', 'Těhotenství, kojení nebo plán do 6 měsíců?'],
-  ['allergies', 'Alergie'],
-  ['job', 'Práce a její charakter'],
-  ['energy', 'Úroveň energie 1–10'],
-  ['digestion', 'Zažívací potíže'],
-  ['gyn', 'Gynekologické či hormonální potíže'],
-  ['pastAttempts', 'Dřívější pokusy o hubnutí a výsledek'],
-  ['pastDrugs', 'Užíval(a) jste léky na hubnutí?'],
-  ['diet', 'Typický jídelníček — snídaně, oběd, večeře, svačiny, sladké'],
-  ['water', 'Kolik čisté vody denně'],
-  ['alcohol', 'Vztah k alkoholu'],
-  ['smoking', 'Kouření či nikotin'],
-  ['limits', 'Pohybová omezení'],
-  ['motivation', 'Co je Vaše hlavní motivace?']
-];
+const EXAM_REQUIRED = [];
+
+/* Co po klientovi chceme před platbou: přesně to, co potřebuje laboratoř do
+   žádanky, a nic navíc. Jméno, adresu, e-mail a telefon už formulář má, takže
+   zbývá datum narození a rodné číslo — a výška s váhou u toho, u koho je
+   neznáme ze screeningu. Pohlaví si server odvodí z rodného čísla.
+
+   Onkologie a těhotenství se nově ptá screening, protože terapii vylučují.
+   Zbytek anamnézy (léky, alergie, životní styl) zjistí lékař při vyšetření;
+   držet kvůli tomu klienta u dvacetipoložkového formuláře před platbou nemá
+   smysl a nic to neurychlí. */
 function examFieldsError() {
   const a = S.a;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(a.birthDate || '')) return 'Vyplňte prosím datum narození.';
   if (!/^\d{6}\s*\/?\s*\d{3,4}$/.test((a.birthNumber || '').trim())) return 'Rodné číslo zadejte ve tvaru 825310/1234.';
-  const miry = !(Number(a.height) > 0 && Number(a.weight) > 0);
-  if (miry) {
+  if (!(Number(a.height) > 0 && Number(a.weight) > 0)) {
     const h = Number(a.height), w = Number(a.weight);
     if (!(h >= 120 && h <= 230)) return 'Vyplňte prosím výšku v centimetrech.';
     if (!(w >= 30 && w <= 350)) return 'Vyplňte prosím váhu v kilogramech.';
-  }
-  for (const [k, label] of EXAM_REQUIRED) {
-    if (!(a[k] || '').toString().trim()) return 'Vyplňte prosím: ' + label;
   }
   if (!a.labConsent) return 'Bez souhlasu údaje laboratoři předat nemůžeme.';
   return '';
@@ -647,38 +635,17 @@ function examFieldsPayload() {
   };
   if (Number(a.height) > 0) out.height = Number(a.height);
   if (Number(a.weight) > 0) out.weight = Number(a.weight);
-  EXAM_REQUIRED.forEach(function (f) { out[f[0]] = (a[f[0]] || '').toString().trim(); });
   return out;
 }
 
 function examFieldsHTML() {
   const miry = !(Number(S.a.height) > 0 && Number(S.a.weight) > 0);
   return `<p class="fsec">Údaje pro laboratoř</p>
-    <p class="fine">Bez nich laboratoř žádanku na odběr nevystaví. Rodné číslo posíláme jen jí, v e-mailech ho nikdy neuvádíme.</p>
+    <p class="fine">Bez nich laboratoř žádanku na odběr nevystaví. Rodné číslo posíláme jen jí, v e-mailech ho nikdy neuvádíme — a když rezervaci nezaplatíte, smažeme ho.</p>
     <div class="ufrow">${uf('birthDate', 'Datum narození', { type: 'date' })}
       ${uf('birthNumber', 'Rodné číslo', { inputmode: 'numeric', placeholder: '8601079443' })}</div>
-    <div class="ufrow one">${uf('insurance', 'Zdravotní pojišťovna nebo její kód', { placeholder: 'VZP / 111' })}</div>
     ${miry ? `<div class="ufrow">${uf('height', 'Výška (cm)', { type: 'number', inputmode: 'numeric', placeholder: '168' })}
       ${uf('weight', 'Váha (kg)', { type: 'number', inputmode: 'numeric', placeholder: '92' })}</div>` : ''}
-    <p class="fsec">Zdravotní minimum pro lékaře</p>
-    <div class="ufrow one">${uf('meds', 'Jaké léky a doplňky pravidelně užíváte?', { placeholder: 'Žádné / Euthyrox, hořčík' })}</div>
-    <div class="ufrow one">${uf('oncology', 'Probíhá u Vás onkologická léčba?', { placeholder: 'Ne' })}</div>
-    <div class="ufrow one">${uf('pregnancy', 'Těhotenství, kojení nebo plán do 6 měsíců?', { placeholder: 'Ne' })}</div>
-    <div class="ufrow one">${uf('allergies', 'Alergie', { placeholder: 'Ne / pyl, penicilin' })}</div>
-    <p class="fsec">Doplňující údaje pro lékaře</p>
-    <p class="fine">Lékař je má před vyšetřením, takže se Vás na ně nebude ptát znovu.</p>
-    <div class="ufrow one">${uf('job', 'Práce a její charakter', { placeholder: 'Sedavá / aktivní / stresová' })}</div>
-    <div class="ufrow one">${uf('energy', 'Úroveň energie 1–10', { type: 'number', inputmode: 'numeric', placeholder: '6' })}</div>
-    <div class="ufrow one">${uf('digestion', 'Zažívací potíže', { placeholder: 'Nadýmání, zácpa, pálení žáhy…' })}</div>
-    <div class="ufrow one">${uf('gyn', 'Gynekologické či hormonální potíže', { placeholder: 'PMOS (PCOS), inzulinová rezistence…' })}</div>
-    <div class="ufrow one">${uf('pastAttempts', 'Dřívější pokusy o hubnutí a výsledek', { placeholder: 'Co jste zkoušel(a) a jak to dopadlo' })}</div>
-    <div class="ufrow one">${uf('pastDrugs', 'Užíval(a) jste léky na hubnutí?', { placeholder: 'Ne / Saxenda, Ozempic…' })}</div>
-    <div class="ufrow one">${uf('diet', 'Typický jídelníček — snídaně, oběd, večeře, svačiny, sladké', { placeholder: 'Klidně upřímně a stručně' })}</div>
-    <div class="ufrow one">${uf('water', 'Kolik čisté vody denně', { placeholder: '1,5 l' })}</div>
-    <div class="ufrow one">${uf('alcohol', 'Vztah k alkoholu', { placeholder: 'Nepiji / příležitostně' })}</div>
-    <div class="ufrow one">${uf('smoking', 'Kouření či nikotin', { placeholder: 'Nekouřím' })}</div>
-    <div class="ufrow one">${uf('limits', 'Pohybová omezení', { placeholder: 'Ne / bolesti zad, kolena' })}</div>
-    <div class="ufrow one">${uf('motivation', 'Co je Vaše hlavní motivace?', { placeholder: 'Proč do toho jdete' })}</div>
     <label class="cbox"><input type="checkbox" id="c-lab" data-consent="labConsent" ${S.a.labConsent ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
       <span>Souhlasím, aby Aeternum Clinic předala tyto údaje smluvní laboratoři za účelem objednání odběru a provedení vyšetření.</span></label>`;
 }
