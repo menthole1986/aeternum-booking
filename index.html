@@ -834,7 +834,13 @@ const LIFESTYLE_Q = [
   ['gyn', 'Gynekologické či hormonální potíže', 'PMOS (PCOS), inzulinová rezistence… / žádné'],
   ['pastAttempts', 'Dřívější pokusy o hubnutí a výsledek', 'Co jste zkoušel(a) a jak to dopadlo'],
   ['pastDrugs', 'Užíval(a) jste léky na hubnutí?', 'Ne / Saxenda, Ozempic…'],
-  ['diet', 'Typický jídelníček — snídaně, svačina, oběd, večeře, sladké', 'Klidně upřímně a stručně'],
+  ['dietBreakfast', 'Snídaně', 'Co obvykle snídáte, nebo že nesnídáte'],
+  ['dietSnack1', 'Dopolední svačina', 'Ovoce, nic, káva…'],
+  ['dietLunch', 'Oběd', 'Co bývá nejčastěji'],
+  ['dietSnack2', 'Odpolední svačina nebo snack', 'Sušenka, jogurt, nic…'],
+  ['dietDinner', 'Večeře', 'Co a kolem kolika hodin'],
+  ['dietSweet', 'Sladká nebo slaná tečka', 'Upřímně — čokoláda, chipsy, nic'],
+  ['dietDrinks', 'Co pijete přes den', 'Voda, káva, slazené, alkohol'],
   ['water', 'Kolik čisté vody denně', '1,5 l'],
   ['alcohol', 'Vztah k alkoholu', 'Nepiji / příležitostně'],
   ['smoking', 'Kouření či nikotin', 'Nekouřím'],
@@ -853,7 +859,9 @@ function lifestyleFormHTML() {
   return `<span class="eyebrow">Ještě pár otázek</span><h3>Jak žijete</h3>
     <p class="lead" style="margin-top:12px">Z těchhle odpovědí staví lékař s trenérem Váš program. Nespěchá to a nic tím neblokujete — termín máte potvrzený.</p>
     <div class="bform" style="margin-top:18px">
-      ${LIFESTYLE_Q.map(q => `<div class="ufrow one">${uf(q[0], q[1], { placeholder: q[2] })}</div>`).join('')}
+      ${LIFESTYLE_Q.map(q => (q[0] === 'dietBreakfast'
+        ? `<p class="fsec">Typický den na talíři</p><p class="fine">Klidně upřímně — tohle není zkouška a trenér s tím pracuje líp než s „jím normálně“.</p><div class="ufrow one">${uf(q[0], q[1], { placeholder: q[2] })}</div>`
+        : `<div class="ufrow one">${uf(q[0], q[1], { placeholder: q[2] })}</div>`)).join('')}
       <button type="button" class="btn pri" id="lifeBtn">Odeslat</button>
       <span class="err" id="manageErr" role="alert"></span>
     </div>`;
@@ -871,6 +879,14 @@ async function submitLifestyle(btn) {
   try {
     const telo = { vs: M.vs, t: M.t };
     LIFESTYLE_Q.forEach(q => { telo[q[0]] = (a[q[0]] || '').toString().trim(); });
+    /* Jídelníček se ptá po jídlech, aby klient nenapsal „normálně jím“, ale
+       do tabulky patří jako jeden čitelný odstavec — lékař ho čte najednou. */
+    telo.diet = [
+      ['Snídaně', a.dietBreakfast], ['Dopolední svačina', a.dietSnack1],
+      ['Oběd', a.dietLunch], ['Odpolední svačina', a.dietSnack2],
+      ['Večeře', a.dietDinner], ['Sladká/slaná tečka', a.dietSweet],
+      ['Pití', a.dietDrinks]
+    ].map(r => r[0] + ': ' + (r[1] || '').toString().trim()).join('\n');
     await api('lifestyle', telo, 30000);
     S.manage = Object.assign({}, M, { lifestyleDone: true, needsLifestyle: false });
     rerender();
