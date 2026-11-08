@@ -483,7 +483,7 @@ function panelHTML() {
     return `<div class="success"><div class="tick">${icon('i-check')}</div><span class="eyebrow">Potvrzeno</span>
       <h3>${kdy ? 'Termín je Váš' : 'Platba dorazila'}</h3>
       ${kdy ? `<p class="lead" style="margin-top:14px">${kdy}</p>` : ''}
-      <p class="lead" style="margin-top:12px">Potvrzení a pozvánku do kalendáře jsme poslali na <b style="color:var(--ink)">${esc(S.a.email)}</b>. Den před konzultací Vám přijde SMS připomínka.</p>
+      <p class="lead" style="margin-top:12px">Potvrzení a pozvánku do kalendáře jsme poslali na <b style="color:var(--ink)">${esc(S.a.email)}</b>. Den před ${isExam() ? 'vyšetřením' : 'konzultací'} Vám přijde SMS připomínka.</p>
       ${B.needsData ? `<button type="button" class="btn pri" data-act="labnow" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">Pokračovat na vstupní dotazník</button>
       <p class="fine" style="margin-top:10px">Zbývá poslední krok — bez něj nemůžeme připravit žádanku ani podklady pro lékaře.</p>` : ''}
       ${B.manageUrl ? `<a class="btn ghost" href="${esc(B.manageUrl)}" style="margin-top:clamp(${B.needsData ? '10px,calc(.9*var(--u)),calc(14px*var(--k))' : '18px,calc(1.5*var(--u)),calc(28px*var(--k))'})">Přesunout nebo zrušit termín</a>` : ''}
