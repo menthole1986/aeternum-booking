@@ -670,7 +670,7 @@ function examFieldsHTML() {
   return `<p class="fsec">Údaje pro laboratoř</p>
     <p class="fine">Bez nich laboratoř žádanku na odběr nevystaví. Rodné číslo posíláme jen jí, v e-mailech ho nikdy neuvádíme — a když rezervaci nezaplatíte, smažeme ho.</p>
     <div class="ufrow">${uf('birthDate', 'Datum narození', { type: 'date' })}
-      ${uf('birthNumber', 'Rodné číslo', { inputmode: 'numeric', placeholder: '8601079443' })}</div>
+      ${uf('birthNumber', 'Rodné číslo', { inputmode: 'numeric', placeholder: 'devět nebo deset číslic, bez lomítka' })}</div>
     ${miry ? `<div class="ufrow">${uf('height', 'Výška (cm)', { type: 'number', inputmode: 'numeric', placeholder: '168' })}
       ${uf('weight', 'Váha (kg)', { type: 'number', inputmode: 'numeric', placeholder: '92' })}</div>` : ''}
     <label class="cbox"><input type="checkbox" id="c-lab" data-consent="labConsent" ${S.a.labConsent ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
@@ -824,7 +824,7 @@ function labFormHTML() {
     <div class="bform" style="margin-top:18px">
       <div class="ufrow one">${uf('name', 'Jméno a příjmení podle průkazu', { autocomplete: 'name', placeholder: 'Jana Nováková' })}</div>
       <div class="ufrow one">${uf('birthDate', 'Datum narození', { type: 'date' })}</div>
-      <div class="ufrow one">${uf('birthNumber', 'Rodné číslo', { inputmode: 'numeric', placeholder: '8601079443' })}</div>
+      <div class="ufrow one">${uf('birthNumber', 'Rodné číslo', { inputmode: 'numeric', placeholder: 'devět nebo deset číslic, bez lomítka' })}</div>
       <div class="ufrow one">${uf('insurance', 'Zdravotní pojišťovna nebo její kód (nepovinné)', { placeholder: 'VZP / 111' })}</div>
       <div class="ufrow one">${uf('street', 'Ulice a číslo popisné', { autocomplete: 'street-address', placeholder: 'Chlumčanského 497/5' })}</div>
       <div class="ufrow one">${uf('city', 'Město', { autocomplete: 'address-level2', placeholder: 'Praha 8-Libeň' })}</div>
@@ -1358,8 +1358,8 @@ const EXAM_HERO = {
   fine: 'Cena zahrnuje odběr krve v Synlabu i lékařské vyšetření. Vyšetření trvá 45 minut a může proběhnout online nebo osobně v Praze. '
     + 'Žádanku na odběr Vám pošleme hned po úhradě. Na odběr si musíte osobně zajít na odběrové místo a výsledky bývají obvykle do 48 hodin, '
     + 'takže doporučujeme jít alespoň 3–4 dny před vyšetřením; když to nestíháte, zvolte radši pozdější termín vyšetření. '
-    + 'Hodí se k němu i analýza složení těla — měření na InBody nebo podobném přístroji. '
-    + 'Není to podmínka, ale pomůže nám Váš případ posoudit přesněji: uvidíme poměr svalů a tuku, ne jen číslo na váze. '
+    + 'Vřele doporučujeme zajistit si k němu i analýzu složení těla — měření na InBody nebo podobném přístroji. '
+    + 'Povinná není, ale pomůže nám Váš případ posoudit výrazně přesněji: uvidíme poměr svalů a tuku, ne jen číslo na váze. '
     + 'Dělají ji například fitness centra nebo i některé polikliniky; sami ji zatím provádíme jenom osobně v ordinaci.'
 };
 function applyKind() {
