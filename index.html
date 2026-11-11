@@ -93,6 +93,8 @@ main > .screen{width:100%;animation:rise .4s ease both}
 /* Tři podoby konzultace vedle sebe. Cena patří přímo na tlačítko — jinak by
    si klient musel pamatovat, co stojí co, než na něco klikne. */
 .seg3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))}
+/* Bez Marcela AI zbydou dvě volby — ať se neroztáhnou do tří sloupců. */
+.seg3.dva{grid-template-columns:repeat(2,1fr)}
 .seg3 button{min-height:clamp(62px,calc(4*var(--u)),calc(78px*var(--k)));padding:10px 8px;border-radius:16px;border:1.5px solid rgba(255,255,255,.22);background:transparent;cursor:pointer;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;line-height:1.25}
 .seg3 button b{font-size:clamp(12px,calc(.8*var(--u)),calc(15px*var(--k)));font-weight:600;color:var(--ink)}
 .seg3 button i{font-style:normal;font-size:clamp(11px,calc(.7*var(--u)),calc(13px*var(--k)));font-weight:600;letter-spacing:.04em}
@@ -389,7 +391,7 @@ html,body{background:var(--ground);color:var(--ink)}
       <h1 class="h-l" id="heroTitle">Vstupní<br><span class="light">konzultace</span></h1>
       <p class="lead" id="heroLead" hidden style="margin-top:clamp(16px,calc(1.4*var(--u)),calc(28px*var(--k)))"></p>
       <div class="bul" id="heroBul"><div>Seznámení s terapií redukce hmotnosti</div><div>Zodpovězení nejčastějších dotazů</div></div>
-      <p class="fine" id="heroFine" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">S AI konzultantem si můžete povídat hned po zaplacení 121 Kč a odkaz platí 72 hodin. Konzultace s koordinátorem trvá 30 minut, proběhne online nebo osobně v Praze a rezervace je platná po uhrazení poplatku. Obě částky Vám odečteme z první platby za program.</p>
+      <p class="fine" id="heroFine" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))"></p>
       <div id="heroStep2"><span class="eyebrow" style="margin-top:clamp(38px,calc(3.2*var(--u)),calc(58px*var(--k)))">Druhý krok</span><p class="notice" style="margin-top:clamp(10px,calc(0.8*var(--u)),calc(14px*var(--k)))"><span>⚠️</span><span>Pro posouzení vhodnosti terapie Vás čeká krevní screening a lékařské vyšetření (4 970 Kč). Hradí se až po vstupní konzultaci, teď neplatíte nic navíc.</span></p><p class="reassure" style="margin-top:12px"><b>Ze screeningu nemusíte mít žádné obavy.</b> Ověřujeme jím, že je pro Vás terapie bezpečná a v jaké dávce začít.</p></div>
     </div>
     <div class="panel" id="panel"></div>
@@ -407,6 +409,18 @@ html,body{background:var(--ground);color:var(--ink)}
    ========================================================================== */
 
 const URLP = new URLSearchParams(location.search);
+/* Úvodní věta v hlavičce. Mluví o podobách konzultace, takže se musí měnit
+   spolu s `advisorEnabled` — natvrdo v HTML nabízela Marcela AI i ve chvíli,
+   kdy ho volba pod ní vůbec neobsahovala. */
+function heroFineText() {
+  const spolecne = 'Konzultace s koordinátorem trvá ' + CFG.duration + ' minut, proběhne online nebo osobně v Praze ' +
+    'a rezervace je platná po uhrazení poplatku.';
+  return CFG.advisorEnabled
+    ? 'S AI konzultantem si můžete povídat hned po zaplacení ' + fmt(CFG.advisorPrice) + ' Kč a odkaz platí ' +
+      CFG.advisorHours + ' hodin. ' + spolecne + ' Obě částky Vám odečteme z první platby za program.'
+    : spolecne + ' Částku Vám odečteme z první platby za program.';
+}
+
 const CFG = {
   apiUrl: 'https://script.google.com/macros/s/AKfycby5mSooRjSpT8CUoaQzhJLW60VzvJwva3e7nLnlLqDBG5FsKBdp70ykk9wO9fE5130p/exec',                                   // webová aplikace z aeternum_screening_apps_script.gs
   price: 570,                                   // konzultace se živým koordinátorem (online i osobně)
@@ -415,6 +429,12 @@ const CFG = {
      tam proto, aby klient konzultaci bral vážně, a odečítá se z první platby
      za program stejně jako konzultace s člověkem. Adresu, kde konzultant
      běží, stránka nezná — dá ji server po zaplacení. */
+  /* Nabízíme vstupní konzultaci s Marcelem AI? Když je tohle false, volba
+     se klientovi vůbec neukáže a nabídka má jen koordinátora — online nebo
+     osobně. Vypnout to jde ještě podruhé a jinde: vlastnost ADVISOR_OFF
+     ve skriptu konzultaci přestane i prodávat, kdyby někdo poslal
+     požadavek mimo stránku. Jedno bez druhého stačí, obojí je jistota. */
+  advisorEnabled: false,
   advisorName: 'Marcel AI',                     // 1. pád
   advisorWith: 'Marcelem AI',                   // 7. pád — „s Marcelem AI"; samotné AI se neskloňuje
   advisorPrice: 121,                            // 100 Kč + 21 % DPH
@@ -533,8 +553,8 @@ function panelHTML() {
 
   return `<h3 class="grad" style="margin-top:0">Vstupní konzultace</h3>
     ${priceHTML(B.type)}
-    <div class="seg3" role="group" aria-label="Podoba konzultace">
-      <button type="button" data-btype="advisor" aria-pressed="${B.type === 'advisor'}"><b>AI konzultant</b><i>${fmt(CFG.advisorPrice)} Kč</i></button>
+    <div class="seg3${CFG.advisorEnabled ? '' : ' dva'}" role="group" aria-label="Podoba konzultace">
+      ${CFG.advisorEnabled ? `<button type="button" data-btype="advisor" aria-pressed="${B.type === 'advisor'}"><b>AI konzultant</b><i>${fmt(CFG.advisorPrice)} Kč</i></button>` : ''}
       <button type="button" data-btype="online" aria-pressed="${B.type === 'online'}"><b>Konzultant online</b><i>${fmt(CFG.price)} Kč</i></button>
       <button type="button" data-btype="osobne" aria-pressed="${B.type === 'osobne'}"><b>Konzultant v Praze</b><i>${fmt(CFG.price)} Kč</i></button>
     </div>
@@ -1364,7 +1384,11 @@ const EXAM_HERO = {
 };
 function applyKind() {
   document.title = (isExam() ? 'Lékařské vyšetření' : 'Vstupní konzultace') + ' · Aeternum Clinic';
-  if (!isExam()) return;
+  if (!isExam()) {
+    const f = document.getElementById('heroFine');
+    if (f) f.innerHTML = heroFineText();
+    return;
+  }
   /* Odstavec nad odrážkami je u konzultace schovaný (hidden), ale vyšetření
      si do něj píše vlastní větu — tak ho při tom i odkryjeme. */
   const set = (id, html) => { const el = document.getElementById(id); if (el) { el.innerHTML = html; el.hidden = false; } };
