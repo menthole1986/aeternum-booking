@@ -265,6 +265,33 @@ h3.grad,.h3grad{display:block;width:fit-content;align-self:flex-start;background
   .decline .btn{font-size:11px;letter-spacing:.06em;white-space:nowrap;padding:14px 12px}
 }
 @media (max-width:380px){.decline .btn{font-size:10px}}
+/* ── telefon: střed a vzduch ──────────────────────────────────────────────
+   Stejné pravidlo jako ve screeningu: nadpisy a odstavce drží střed, seznamy
+   se centrují jako blok a řádky uvnitř zůstávají zleva, aby odrážky stály
+   pod sebou. Výstraha s emoji se nestřeďuje — ikona patří na řádek s textem. */
+@media (max-width:760px){
+  .ctr{text-align:center}
+  .ctr .lead,.ctr .fine,.ctr .reassure{margin-left:auto;margin-right:auto}
+  .ctr .bul{width:fit-content;max-width:100%;margin-left:auto;margin-right:auto}
+  .ctr .notice{text-align:left}
+  .ctr .send-status{justify-content:center;width:fit-content;max-width:100%;
+    margin-left:auto;margin-right:auto}
+
+  /* dotazník uvnitř panelu: nadpis a krátké volby na střed, pole a řádky
+     s kolečkem zleva */
+  .qcount{justify-content:center}
+  .qtext{text-align:center}
+  .qhint{max-width:34em;margin-left:auto;margin-right:auto}
+  .opts{justify-content:center}
+  .mhead .tx{text-align:left}
+  .panel > .fine{text-align:center}
+
+  /* víc vzduchu */
+  .screen{padding-top:4px}
+  .split{gap:30px}
+  .eyebrow{letter-spacing:.26em}
+}
+
 
 /* ---------- Světlý vzhled ----------------------------------------------
    Pozadí, černý text a limetkové tlačítko podle www.aeternumclinic.cz.
@@ -357,7 +384,7 @@ html,body{background:var(--ground);color:var(--ink)}
     </div>
   </header>
   <main><div class="screen"><div class="split">
-    <div>
+    <div class="ctr">
       <span class="eyebrow" id="heroStep">První krok</span>
       <h1 class="h-l" id="heroTitle">Vstupní<br><span class="light">konzultace</span></h1>
       <p class="lead" id="heroLead" hidden style="margin-top:clamp(16px,calc(1.4*var(--u)),calc(28px*var(--k)))"></p>
