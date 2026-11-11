@@ -798,7 +798,7 @@ function labFormHTML() {
       <div class="ufrow one">${uf('name', 'Jméno a příjmení podle průkazu', { autocomplete: 'name', placeholder: 'Jana Nováková' })}</div>
       <div class="ufrow one">${uf('birthDate', 'Datum narození', { type: 'date' })}</div>
       <div class="ufrow one">${uf('birthNumber', 'Rodné číslo', { inputmode: 'numeric', placeholder: '8601079443' })}</div>
-      <div class="ufrow one">${uf('insurance', 'Zdravotní pojišťovna nebo její kód', { placeholder: 'VZP / 111' })}</div>
+      <div class="ufrow one">${uf('insurance', 'Zdravotní pojišťovna nebo její kód (nepovinné)', { placeholder: 'VZP / 111' })}</div>
       <div class="ufrow one">${uf('street', 'Ulice a číslo popisné', { autocomplete: 'street-address', placeholder: 'Chlumčanského 497/5' })}</div>
       <div class="ufrow one">${uf('city', 'Město', { autocomplete: 'address-level2', placeholder: 'Praha 8-Libeň' })}</div>
       <div class="ufrow one">${uf('zip', 'PSČ', { inputmode: 'numeric', autocomplete: 'postal-code', placeholder: '180 00' })}</div>
@@ -905,7 +905,6 @@ async function submitLabData(btn) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(a.birthDate || '')) return err('Vyplňte datum narození.');
   if (!/^\d{6}\s*\/?\s*\d{3,4}$/.test((a.birthNumber || '').trim())) return err('Rodné číslo zadejte ve tvaru 825310/1234.');
   if (!a.street || !a.city || !/^\d{3}\s?\d{2}$/.test((a.zip || '').trim())) return err('Vyplňte prosím celou adresu včetně PSČ.');
-  if (!(a.insurance || '').toString().trim()) return err('Vyplňte prosím: Zdravotní pojišťovna nebo její kód');
   if (!(a.meds || '').toString().trim()) return err('Vyplňte prosím: Jaké léky a doplňky pravidelně užíváte?');
   if (!(a.oncology || '').toString().trim()) return err('Vyplňte prosím: Probíhá u Vás onkologická léčba?');
   if (!(a.pregnancy || '').toString().trim()) return err('Vyplňte prosím: Těhotenství, kojení nebo plán do 6 měsíců?');
