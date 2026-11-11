@@ -1352,7 +1352,10 @@ const EXAM_HERO = {
   title: 'Lékařské<br><span class="light">vyšetření</span>',
   lead: 'Vstupní screening u lékaře, který:',
   bullets: ['Projde s Vámi výsledky krevních testů', 'Posoudí vhodnost terapie a nastaví dávkování', 'Vystaví recept a plán sledování'],
-  fine: 'Cena zahrnuje odběr krve v Synlabu i lékařské vyšetření. Vyšetření trvá 30 minut a může proběhnout online nebo osobně v Praze. Žádanku na odběr Vám pošleme hned po úhradě — na odběr zajděte alespoň 2–3 dny před vyšetřením.'
+  /* Délka i odstup musí souhlasit s konzultací a se serverem: vyšetření
+     trvá 45 minut (`CONFIG.KINDS.exam.minutes`) a laboratoři trvá zhruba
+     48 hodin, než pošle výsledky — lékař je má mít před sebou. */
+  fine: 'Cena zahrnuje odběr krve v Synlabu i lékařské vyšetření. Vyšetření trvá 45 minut a může proběhnout online nebo osobně v Praze. Žádanku na odběr Vám pošleme hned po úhradě — na odběr zajděte s rezervou, laboratoři trvá zhruba 48 hodin, než nám pošle výsledky.'
 };
 function applyKind() {
   document.title = (isExam() ? 'Lékařské vyšetření' : 'Vstupní konzultace') + ' · Aeternum Clinic';
