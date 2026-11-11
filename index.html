@@ -1357,8 +1357,10 @@ const EXAM_HERO = {
      48 hodin, než pošle výsledky — lékař je má mít před sebou. */
   fine: 'Cena zahrnuje odběr krve v Synlabu i lékařské vyšetření. Vyšetření trvá 45 minut a může proběhnout online nebo osobně v Praze. '
     + 'Žádanku na odběr Vám pošleme hned po úhradě. Na odběr si musíte osobně zajít na odběrové místo a výsledky bývají obvykle do 48 hodin, '
-    + 'takže doporučujeme jít alespoň 3–4 dny před vyšetřením. Hodí se k němu i analýza složení těla (InBody nebo podobná) — není podmínkou, '
-    + 'ale pomůže nám Váš případ posoudit přesněji.'
+    + 'takže doporučujeme jít alespoň 3–4 dny před vyšetřením; když to nestíháte, zvolte radši pozdější termín vyšetření. '
+    + 'Hodí se k němu i analýza složení těla — měření na InBody nebo podobném přístroji. '
+    + 'Není to podmínka, ale pomůže nám Váš případ posoudit přesněji: uvidíme poměr svalů a tuku, ne jen číslo na váze. '
+    + 'Dělají ji například fitness centra nebo i některé polikliniky; sami ji zatím provádíme jenom osobně v ordinaci.'
 };
 function applyKind() {
   document.title = (isExam() ? 'Lékařské vyšetření' : 'Vstupní konzultace') + ' · Aeternum Clinic';
