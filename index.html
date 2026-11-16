@@ -650,6 +650,10 @@ function formHTML() {
     ${isExam() ? examFieldsHTML() : ''}
     <label class="cbox"><input type="checkbox" id="c-book" data-consent="bookConsent" ${S.a.bookConsent ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
       <span>Souhlasím se zpracováním uvedených údajů za účelem rezervace ${isExam() ? 'vyšetření' : 'konzultace'} a s tím, aby mě Aeternum Clinic v této věci kontaktovala. Více v <a href="${CFG.gdprUrl}" target="_blank" rel="noopener" style="color:var(--ink)">zásadách zpracování osobních údajů</a>.</span></label>
+    <label class="cbox"><input type="checkbox" id="c-now" data-consent="startNow" ${S.a.startNow ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
+      <span>${ai
+        ? 'Chci konzultaci spustit hned po zaplacení. Vím, že až ji budu mít, nebudu ji už moct do 14 dnů bezdůvodně zrušit a chtít peníze zpátky.'
+        : `Chci, aby ${isExam() ? 'vyšetření proběhlo' : 'konzultace proběhla'} ve vybraném termínu. Vím, že až proběhne, ${isExam() ? 'nebudu ho' : 'nebudu ji'} už moct do 14 dnů bezdůvodně zrušit a chtít peníze zpátky.`}</span></label>
     <button type="button" class="btn pri" id="bookBtn"${ai || slot ? '' : ' disabled'}>${ai ? `Objednat za ${fmt(CFG.advisorPrice)} Kč` : 'Rezervovat termín'}</button>
     ${ai ? '' : `<p class="fine" style="margin-top:12px">${lhutaVeta()}</p>`}
     ${podminkyVeta()}
@@ -1225,6 +1229,10 @@ async function submitBooking(btn) {
   if (!(S.a.city || '').trim()) return err('Vyplňte prosím město.');
   if (!/^\d{3}\s?\d{2}$/.test((S.a.zip || '').trim())) return err('PSČ zadejte ve tvaru 190 00.');
   if (!S.a.bookConsent) return err('Pro rezervaci je potřeba souhlas.');
+  /* Bez tohohle souhlasu klientovi zůstává čtrnáctidenní právo odstoupit i po
+     termínu, který absolvoval. Proto se na něj čeká stejně jako na ten první —
+     není to drobné písmo, je to podmínka objednávky. */
+  if (!S.a.startNow) return err('Zaškrtněte prosím i druhý souhlas, bez něj rezervaci založit nemůžeme.');
   if (isExam()) { const e = examFieldsError(); if (e) return err(e); }
 
   btn.disabled = true;
@@ -1243,7 +1251,7 @@ async function submitBooking(btn) {
         slot: ai ? '' : S.booking.slot, type: S.booking.type,
         name: S.a.name.trim(), email: S.a.email.trim(), phone: S.a.phone.trim(),
         street: S.a.street.trim(), city: S.a.city.trim(), zip: (S.a.zip || '').replace(/\s/g, ''),
-        consent: true, src: 'booking'
+        consent: true, startNow: true, src: 'booking'
       }, isExam() ? examFieldsPayload() : {}), 45000);
     } else {
       const vs = String(Date.now()).slice(-8);
