@@ -652,8 +652,8 @@ function formHTML() {
       <span>Souhlasím se zpracováním uvedených údajů za účelem rezervace ${isExam() ? 'vyšetření' : 'konzultace'} a s tím, aby mě Aeternum Clinic v této věci kontaktovala. Více v <a href="${CFG.gdprUrl}" target="_blank" rel="noopener" style="color:var(--ink)">zásadách zpracování osobních údajů</a>.</span></label>
     <label class="cbox"><input type="checkbox" id="c-now" data-consent="startNow" ${S.a.startNow ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
       <span>${ai
-        ? 'Chci konzultaci spustit hned po zaplacení. Vím, že až ji budu mít, nebudu ji už moct do 14 dnů bezdůvodně zrušit a chtít peníze zpátky.'
-        : `Chci, aby ${isExam() ? 'vyšetření proběhlo' : 'konzultace proběhla'} ve vybraném termínu. Vím, že až proběhne, ${isExam() ? 'nebudu ho' : 'nebudu ji'} už moct do 14 dnů bezdůvodně zrušit a chtít peníze zpátky.`}</span></label>
+        ? 'Chci konzultaci spustit hned po zaplacení. Beru na vědomí, že jakmile proběhne, peníze se už nevrací.'
+        : `Chci, aby ${isExam() ? 'vyšetření proběhlo' : 'konzultace proběhla'} ve vybraném termínu. Beru na vědomí, že jakmile proběhne, peníze se už nevrací.`}</span></label>
     <button type="button" class="btn pri" id="bookBtn"${ai || slot ? '' : ' disabled'}>${ai ? `Objednat za ${fmt(CFG.advisorPrice)} Kč` : 'Rezervovat termín'}</button>
     ${ai ? '' : `<p class="fine" style="margin-top:12px">${lhutaVeta()}</p>`}
     ${podminkyVeta()}
