@@ -699,7 +699,11 @@ const EXAM_REQUIRED = [];
 function examFieldsError() {
   const a = S.a;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(a.birthDate || '')) return 'Vyplňte prosím datum narození.';
-  if (!/^\d{6}\s*\/?\s*\d{3,4}$/.test((a.birthNumber || '').trim())) return 'Rodné číslo zadejte ve tvaru 825310/1234.';
+/* Rodné číslo sbíráme i ukládáme bez lomítka. Kdo ho napíše, nemá důvod to
+   opravovat růčně — utřeme ho za něj, stejně jako mezery. */
+function rcOcistit(v) { return String(v || '').replace(/[\s\/]/g, ''); }
+
+  if (!/^\d{9,10}$/.test(rcOcistit(a.birthNumber))) return 'Rodné číslo zadejte jako devět nebo deset číslic, bez lomítka a bez mezer.';
   if (!(Number(a.height) > 0 && Number(a.weight) > 0)) {
     const h = Number(a.height), w = Number(a.weight);
     if (!(h >= 120 && h <= 230)) return 'Vyplňte prosím výšku v centimetrech.';
@@ -710,7 +714,7 @@ function examFieldsError() {
 }
 function examFieldsPayload() {
   const a = S.a, out = {
-    birthDate: a.birthDate, birthNumber: (a.birthNumber || '').trim(), labConsent: true
+    birthDate: a.birthDate, birthNumber: rcOcistit(a.birthNumber), labConsent: true
   };
   if (Number(a.height) > 0) out.height = Number(a.height);
   if (Number(a.weight) > 0) out.weight = Number(a.weight);
@@ -996,7 +1000,7 @@ async function submitLabData(btn) {
   const a = S.a;
   if (!a.name || !/\s/.test(a.name.trim())) return err('Vyplňte jméno i příjmení.');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(a.birthDate || '')) return err('Vyplňte datum narození.');
-  if (!/^\d{6}\s*\/?\s*\d{3,4}$/.test((a.birthNumber || '').trim())) return err('Rodné číslo zadejte ve tvaru 825310/1234.');
+  if (!/^\d{9,10}$/.test(rcOcistit(a.birthNumber))) return err('Rodné číslo zadejte jako devět nebo deset číslic, bez lomítka a bez mezer.');
   if (!a.street || !a.city || !/^\d{3}\s?\d{2}$/.test((a.zip || '').trim())) return err('Vyplňte prosím celou adresu včetně PSČ.');
   if (!(a.meds || '').toString().trim()) return err('Vyplňte prosím: Jaké léky a doplňky pravidelně užíváte?');
   if (!(a.oncology || '').toString().trim()) return err('Vyplňte prosím: Probíhá u Vás onkologická léčba?');
