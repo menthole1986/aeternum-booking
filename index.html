@@ -1405,14 +1405,15 @@ function resetAll() {
    Odkaz z e-mailu „Dorazil(a) klient?“ míří sem, ne na script.google.com —
    adresa webové aplikace Google se v prohlížeči s více přihlášenými účty
    přepisuje na tvar /u/N/ a často skončí chybou. */
-async function attendanceAction(att, vs, t, r) {
+async function attendanceAction(att, vs, t, r, v) {
   const panel = document.querySelector('.panel') || document.body;
   const box = (title, text) => `<div class="success"><span class="eyebrow">Aeternum Clinic</span>
     <h3>${esc(title)}</h3><p class="lead" style="margin-top:14px">${esc(text)}</p></div>`;
   panel.innerHTML = box('Pracuji na tom…', 'Zaznamenávám odpověď.');
   try {
     // Odpověď se posílá jako „att“ — „action“ už v obálce drží název akce backendu.
-    const j = await api('attendance', { att, vs, t, r }, 30000);
+    // „v“ nese program, na kterém se koordinátor s klientem domluvil.
+    const j = await api('attendance', { att, vs, t, r, v }, 30000);
     panel.innerHTML = box(j.title || 'Hotovo', j.text || '');
   } catch (x) {
     panel.innerHTML = box('Nepodařilo se', 'Zkuste to prosím ještě jednou, nebo zavolejte na ' + CFG.phone + '.');
@@ -1479,7 +1480,7 @@ const manageVs = URLP.get('vs'), manageT = URLP.get('t');
 if (attAction && manageVs && manageT) {
   // Klinika odpovídá na dotaz, jestli klient dorazil. Zbytek startu přeskakujeme.
   rerender();
-  attendanceAction(attAction, manageVs, manageT, URLP.get('r') || '');
+  attendanceAction(attAction, manageVs, manageT, URLP.get('r') || '', URLP.get('v') || '');
 } else {
   // Návrat z platební brány: hned ukážeme ověřování, i když o rezervaci nic nevíme
   // (třeba když platba začala na screeningu).
