@@ -1322,7 +1322,10 @@ async function submitBooking(btn) {
            server si je zapisuje a musí sedět s tím, co se stalo na stránce.
            Projít sem stejně může jen ten, kdo má všechny tři, kontroluje se výš. */
         consent: S.a.bookConsent === true, startNow: S.a.startNow === true,
-        termsConsent: S.a.termsConsent === true, termsVersion: CFG.termsVersion || '',
+        /* Verzi podmínek sem stránka neposílá schválně: razítkuje ji server
+           tou, která platí v okamžiku zápisu. Stránka může být z cache a vědět
+           o starší verzi, než kterou klient doopravdy otevřel. */
+        termsConsent: S.a.termsConsent === true,
         src: 'booking'
       }, isExam() ? examFieldsPayload() : {}), 45000);
     } else {
