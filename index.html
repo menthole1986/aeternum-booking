@@ -441,12 +441,10 @@ const URLP = new URLSearchParams(location.search);
 function heroFineText() {
   const spolecne = 'Konzultace s koordinátorem trvá ' + CFG.duration + ' minut, proběhne online nebo osobně v Praze ' +
     'a rezervace je platná po uhrazení poplatku.';
-  /* Konzultace je nepovinná. Kdo ji přeskočí, dostane stejné otázky při vyšetření. */
-  const preskocit = ' Vstupní konzultaci můžete přeskočit a objednat se rovnou na vstupní screening a lékařskou konzultaci, kde se na vše důležité ještě doptáme.';
   return CFG.advisorEnabled
     ? 'S AI konzultantem si můžete povídat hned po zaplacení ' + fmt(CFG.advisorPrice) + ' Kč a odkaz platí ' +
-      CFG.advisorHours + ' hodin. ' + spolecne + ' Obě částky Vám odečteme z první platby za program.' + preskocit
-    : spolecne + ' Částku Vám odečteme z první platby za program.' + preskocit;
+      CFG.advisorHours + ' hodin. ' + spolecne + ' Obě částky Vám odečteme z první platby za program.'
+    : spolecne + ' Částku Vám odečteme z první platby za program.';
 }
 
 const CFG = {
