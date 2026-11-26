@@ -507,7 +507,7 @@ const CFG = {
   // na serveru. Když se jedno změní, musí se změnit obě.
   examPrice: 4970,
   holdMinutes: 120,
-  leadDays: 14,
+  leadDays: 28,                                 // nejbližší měsíc, musí sedět s CONFIG.LEAD_DAYS
   minHours: 24,
   slotStepMin: 60,
   hours: {                                      // záložní hodiny pro demo režim, ostré řídí kalendář
@@ -524,6 +524,9 @@ const CFG = {
 };
 
 const $ = (s, el = document) => el.querySelector(s);
+/* Telefon se v CFG ukládá bez mezer kvůli odkazu tel:, klientovi se ale má
+   ukázat po trojčíslích. Screening má toho samého pomocníka. */
+const tel = v => String(v || '').replace(/^(\+\d{3})(\d{3})(\d{3})(\d{3})$/, '$1 $2 $3 $4');
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const fmt = n => Math.round(n).toLocaleString('cs-CZ');
 const pad2 = n => String(n).padStart(2, '0');
@@ -697,7 +700,9 @@ function slotsHTML(withForm = true) {
       <div class="skel-times">${[0,1,2,3,4,5].map(() => '<div class="skel"></div>').join('')}</div>
       <p class="skel-note"><span class="sp dark"></span><span>Hledám volné termíny v kalendáři…</span></p>`;
   }
-  if (!slotCache.length) return `<p class="emptyslots">V nejbližších ${CFG.leadDays} dnech už nemáme volno. Zavolejte nám prosím na ${esc(CFG.phone)}, termín najdeme.</p>`;
+  /* Vyprodané termíny nejsou slepá ulička: klinika je dobírá po telefonu. Do
+     27. 11. 2026 tu stála jen výzva zavolat a číslo bez mezer. */
+  if (!slotCache.length) return `<p class="emptyslots"><b style="color:var(--ink)">Volné termíny jsou právě vyčerpané.</b> Zavolejte nám na ${esc(tel(CFG.phone))} nebo napište na <a href="mailto:${esc(CFG.email)}" style="color:var(--ink)">${esc(CFG.email)}</a> a termín Vám najdeme a rezervujeme po telefonu.</p>`;
   const days = [...new Set(slotCache.map(s => s.slice(0, 10)))];
   const sel = S.booking.day && days.includes(S.booking.day) ? S.booking.day : days[0];
   S.booking.day = sel;
