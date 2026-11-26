@@ -652,14 +652,20 @@ function priceHTML(type) {
    u živého koordinátora ne, takže dražší varianta vypadala jako horká volba: jen
    jméno, cena a výběr termínu. Marcelovo zadání 26. 11. 2026. */
 function koordinatorHTML() {
+  /* Krátké shrnutí, ne prodejní text. Marcelův přepis 27. 11. 2026: předchozí
+     znění bylo o půl stránky delší a rozebíralo vedlejší účinky i volbu
+     přípravku, což patří lékaři, ne koordinátorovi. */
   return `<div class="twin">
-    <p><b>Co na konzultaci projdeme.</b> Je to ${CFG.duration} minut s odborným koordinátorem na redukci hmotnosti a zdravý životní styl, online nebo osobně v Praze. Není to prodejní hovor a nic na ní nepodepisujete.</p>
-    <p>Projdeme <b>jak terapie probíhá</b>, co od ní čekat a co ne, jak se lék podává a jaké má vedlejší účinky. Řekneme si, <b>který přípravek Vám vychází a proč</b>, a projdeme <b>programy péče</b>: co je v ceně, čím se liší a kolik stojí léčivo v lékárně. Vyberete si program, který Vám sedí.</p>
-    <p>Zeptáte se na cokoli, co Vás zajímá, a doplníme to, co lékař potřebuje vědět před vyšetřením. O vhodnosti terapie rozhoduje vždycky lékař, ne my.</p>
-    <p><b>Konzultace nekončí povídáním.</b> Na jejím konci Vás objednáme k <b>lékařskému vyšetření</b> a pošleme Vám <b>žádanku na odběr krve</b>, <b>informovaný souhlas s léčbou</b> a <b>návrh smlouvy o zdravotní péči</b> sestavený podle programu, na kterém se domluvíme. Smlouva se podepisuje až po vyšetření a schválení terapie, takže si ji v klidu přečtete doma.</p>
-    <p class="fine">Částku ${fmt(CFG.price)} Kč Vám odečteme z první platby za program, takže to není náklad navíc.</p>
+    <p><b>Co na konzultaci projdeme.</b> ${CFG.duration} minut s odborným koordinátorem na redukci
+      hmotnosti a zdravý životní styl, online nebo osobně v Praze. Projdeme detaily, jak terapie
+      probíhá, a programy péče.</p>
+    <p>Zeptáte se na cokoli, co Vás zajímá, a doplníme to, co lékař potřebuje vědět před
+      vyšetřením. O vhodnosti terapie rozhoduje vždycky lékař.</p>
+    <p>Na konci konzultace Vás objednáme k <b>lékařskému vyšetření</b> a pošleme Vám
+      <b>žádanku na odběr krve</b> a klientskou dokumentaci.</p>
   </div>`;
 }
+
 
 /* AI konzultant: žádný termín, jen symbolický poplatek předem. Klient musí
    vědět, že mluví s AI a proč mu to k něčemu je — proto to píšeme rovnou,
