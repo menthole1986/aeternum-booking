@@ -259,7 +259,10 @@ h3.grad,.h3grad{display:block;width:fit-content;align-self:flex-start;background
   /* „Termín držíme pro Vás“ na jeden řádek */
   .panel h3{font-size:26px}
   /* na telefonu drží hlavička panelu střed */
+  /* „text-align“ sám nadpisek nevycentruje: .eyebrow je inline-block,
+     takže se centroval text uvnitř štítku, ne štítek v panelu. */
   .panel > h3,.panel > .eyebrow{text-align:center}
+  .panel > .eyebrow{display:block}
   .panel > h3.grad{margin-left:auto;margin-right:auto}
   .panel > .price{justify-content:center}
   .panel > .price-note{text-align:center}
@@ -291,6 +294,21 @@ h3.grad,.h3grad{display:block;width:fit-content;align-self:flex-start;background
   .opts{justify-content:center}
   .mhead .tx{text-align:left}
   .panel > .fine{text-align:center}
+
+  /* počítadlo se lámalo na dva řádky: „Otázka 8 /“ a pod tím „11“ */
+  .qcount .small-caps{white-space:nowrap;flex:none}
+
+  /* krátká nápověda pod otázkou drží střed, dlouhý výklad zůstává zleva */
+  .qhint{text-align:center}
+  .qhint.long{text-align:left}
+
+  /* jedno pole na krok: popisek i zapsaná hodnota drží střed.
+     Dlouhý dotazník pro laboratoř (.bform) zůstává zleva, vyplňuje se,
+     ne čte. Řádky se zaškrtávacím políčkem taky zleva. */
+  .uf label{text-align:center}
+  .uf input{text-align:center}
+  .bform .uf label,.bform .uf input{text-align:left}
+  .legal summary{text-align:center}
 
   /* víc vzduchu */
   .screen{padding-top:4px}
@@ -396,7 +414,7 @@ html,body{background:var(--ground);color:var(--ink)}
       <p class="lead" id="heroLead" hidden style="margin-top:clamp(16px,calc(1.4*var(--u)),calc(28px*var(--k)))"></p>
       <div class="bul" id="heroBul"><div>Seznámení s terapií redukce hmotnosti</div><div>Zodpovězení nejčastějších dotazů</div><div>Měření InBody</div><div>Příprava podkladů a dokumentace pro lékařské vyšetření</div><div>Žádanka na odběr krve</div></div>
       <p class="fine" id="heroFine" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))"></p>
-      <div id="heroStep2"><span class="eyebrow" style="margin-top:clamp(38px,calc(3.2*var(--u)),calc(58px*var(--k)))">Druhý krok</span><p class="notice" style="margin-top:clamp(10px,calc(0.8*var(--u)),calc(14px*var(--k)))"><span>⚠️</span><span>Pro posouzení vhodnosti terapie je nutné vstupní vyšetření krve, jehož výsledky bude mít lékař k dispozici, až se s Vámi setká osobně nebo online. Cena za odběr i vyšetření je <span id="heroExamPrice">3 970</span> Kč. Když si vezmete konzultaci, hradí se až po ní. Když ji přeskočíte, platí se rovnou při objednání k lékaři.</span></p><p class="reassure" style="margin-top:12px"><b>Ze screeningu nemusíte mít žádné obavy.</b> Ověřujeme jím, že je pro Vás terapie bezpečná a v jaké dávce začít.</p></div>
+      <div id="heroStep2"><span class="eyebrow" style="margin-top:clamp(38px,calc(3.2*var(--u)),calc(58px*var(--k)))">Co Vás čeká pak</span><p class="notice" style="margin-top:clamp(10px,calc(0.8*var(--u)),calc(14px*var(--k)))"><span>⚠️</span><span>Pro posouzení vhodnosti terapie je nutné vstupní vyšetření krve, jehož výsledky bude mít lékař k dispozici, až se s Vámi setká osobně nebo online. Cena za odběr i vyšetření je <span id="heroExamPrice">3 970</span> Kč. Když si vezmete vstupní konzultaci, hradí se tato částka až po ní. Když ji přeskočíte, platí se rovnou při objednání k lékaři.</span></p><p class="reassure" style="margin-top:12px"><b>Ze screeningu nemusíte mít žádné obavy.</b> Ověřujeme jím, že je pro Vás terapie bezpečná a v jaké dávce začít.</p></div>
     </div>
     <div class="panel" id="panel"></div>
   </div></div></main>
