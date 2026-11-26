@@ -292,7 +292,6 @@ h3.grad,.h3grad{display:block;width:fit-content;align-self:flex-start;background
   .qtext{text-align:center}
   .qhint{max-width:34em;margin-left:auto;margin-right:auto}
   .opts{justify-content:center}
-  .mhead .tx{text-align:left}
   .panel > .fine{text-align:center}
 
   /* počítadlo se lámalo na dva řádky: „Otázka 8 /“ a pod tím „11“ */
@@ -309,6 +308,11 @@ h3.grad,.h3grad{display:block;width:fit-content;align-self:flex-start;background
   .uf input{text-align:center}
   .bform .uf label,.bform .uf input{text-align:left}
   .legal summary{text-align:center}
+
+  /* ať na posledním řádku nezůstane viset jedno slovo: krátký nadpis se
+     vyváží do stejně dlouhých řádků, odstavec si nenechá sirotka na konci */
+  .h-l,.qtext,.panel h3,h3.grad{text-wrap:balance}
+  .lead,.fine,.qhint,.reassure,.price-note,.notice span,.bul div{text-wrap:pretty}
 
   /* víc vzduchu */
   .screen{padding-top:4px}
