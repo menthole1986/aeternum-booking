@@ -496,6 +496,10 @@ const CFG = {
   termsUrl: 'https://www.aeternumclinic.cz/obchodni-podminky',
   advisorHours: 72,                             // jak dlouho po zaplacení se dá ke konzultaci vracet
   duration: 30,
+  /* Lékařské vyšetření trvá dél než konzultace. Panel do 27. 11. 2026 ukazoval
+     u obou `duration`, takže u vyšetření svítilo 30 minut místo skutečných 40.
+     Musí souhlasit s `CONFIG.KINDS.exam.minutes` ve skriptu. */
+  examDuration: 40,
   // Vstupní screening: v ceně je odběr krve v Synlabu i lékařské vyšetření.
   // Od 26. 11. 2026 zase 4 970, stejné číslo jako CONFIG.ENTRY_SCREENING_PRICE
   // na serveru. Když se jedno změní, musí se změnit obě.
@@ -631,7 +635,7 @@ function panelHTML() {
    konzultace 121 nebo 570 a jedno číslo by lhalo. Do té doby ji nese tlačítko. */
 function priceHTML(type) {
   if (!type) return '';
-  if (isExam()) return `<div class="price"><b>${fmt(CFG.examPrice)} Kč</b><span class="small-caps">${CFG.duration} minut</span></div>
+  if (isExam()) return `<div class="price"><b>${fmt(CFG.examPrice)} Kč</b><span class="small-caps">${CFG.examDuration} minut</span></div>
     <p class="price-note">Zahrnuje odběr krve v Synlabu i lékařské vyšetření. Osvobozeno od DPH.</p>`;
   if (type === 'advisor') return `<div class="price"><b>${fmt(CFG.advisorPrice)} Kč</b><span class="small-caps">${CFG.advisorEnabled ? 'hned teď' : 'připravujeme'}</span></div>
     <p class="price-note">Částku Vám odečteme z první platby za program.</p>`;
@@ -1549,9 +1553,9 @@ const EXAM_HERO = {
   lead: 'Vstupní screening u lékaře, který:',
   bullets: ['Projde s Vámi výsledky krevních testů', 'Posoudí vhodnost terapie a nastaví dávkování', 'Vystaví recept a plán sledování'],
   /* Délka i odstup musí souhlasit s konzultací a se serverem: vyšetření
-     trvá 45 minut (`CONFIG.KINDS.exam.minutes`) a laboratoři trvá zhruba
+     trvá 40 minut (`CONFIG.KINDS.exam.minutes`) a laboratoři trvá zhruba
      48 hodin, než pošle výsledky — lékař je má mít před sebou. */
-  fine: 'Cena zahrnuje odběr krve v Synlabu i lékařské vyšetření. Vyšetření trvá 45 minut a může proběhnout online nebo osobně v Praze. '
+  fine: 'Cena zahrnuje odběr krve v Synlabu i lékařské vyšetření. Vyšetření trvá 40 minut a může proběhnout online nebo osobně v Praze. '
     + 'Žádanku na odběr Vám pošleme hned po úhradě. Na odběr si musíte osobně zajít na odběrové místo a výsledky bývají obvykle do 48 hodin, '
     + 'takže doporučujeme jít alespoň 3–4 dny před vyšetřením; když to nestíháte, zvolte radši pozdější termín vyšetření. '
     + 'Vřele doporučujeme zajistit si k němu i analýzu složení těla, měření na InBody nebo podobném přístroji. '
