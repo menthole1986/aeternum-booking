@@ -395,7 +395,7 @@ html,body{background:var(--ground);color:var(--ink)}
       <p class="lead" id="heroLead" hidden style="margin-top:clamp(16px,calc(1.4*var(--u)),calc(28px*var(--k)))"></p>
       <div class="bul" id="heroBul"><div>Seznámení s terapií redukce hmotnosti</div><div>Zodpovězení nejčastějších dotazů</div></div>
       <p class="fine" id="heroFine" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))"></p>
-      <div id="heroStep2"><span class="eyebrow" style="margin-top:clamp(38px,calc(3.2*var(--u)),calc(58px*var(--k)))">Druhý krok</span><p class="notice" style="margin-top:clamp(10px,calc(0.8*var(--u)),calc(14px*var(--k)))"><span>⚠️</span><span>Pro posouzení vhodnosti terapie Vás čeká krevní screening a lékařské vyšetření (4 970 Kč). Hradí se až po vstupní konzultaci, teď neplatíte nic navíc.</span></p><p class="reassure" style="margin-top:12px"><b>Ze screeningu nemusíte mít žádné obavy.</b> Ověřujeme jím, že je pro Vás terapie bezpečná a v jaké dávce začít.</p></div>
+      <div id="heroStep2"><span class="eyebrow" style="margin-top:clamp(38px,calc(3.2*var(--u)),calc(58px*var(--k)))">Druhý krok</span><p class="notice" style="margin-top:clamp(10px,calc(0.8*var(--u)),calc(14px*var(--k)))"><span>⚠️</span><span>Pro posouzení vhodnosti terapie Vás čeká krevní screening a lékařské vyšetření (<span id="heroExamPrice">3 970</span> Kč). Hradí se až po vstupní konzultaci, teď neplatíte nic navíc.</span></p><p class="reassure" style="margin-top:12px"><b>Ze screeningu nemusíte mít žádné obavy.</b> Ověřujeme jím, že je pro Vás terapie bezpečná a v jaké dávce začít.</p></div>
     </div>
     <div class="panel" id="panel"></div>
   </div></div></main>
@@ -452,9 +452,9 @@ const CFG = {
   advisorHours: 72,                             // jak dlouho po zaplacení se dá ke konzultaci vracet
   duration: 30,
   // Vstupní screening: v ceně je odběr krve v Synlabu i lékařské vyšetření.
-  // Od 24. 11. 2026 za 3 970 — stejné číslo jako CONFIG.ENTRY_SCREENING_PRICE
+  // Od 26. 11. 2026 zase 4 970, stejné číslo jako CONFIG.ENTRY_SCREENING_PRICE
   // na serveru. Když se jedno změní, musí se změnit obě.
-  examPrice: 3970,
+  examPrice: 4970,
   holdMinutes: 120,
   leadDays: 14,
   minHours: 24,
@@ -558,7 +558,8 @@ function panelHTML() {
         <button type="button" data-btype="online" aria-pressed="${B.type === 'online'}">Online</button>
         <button type="button" data-btype="osobne" aria-pressed="${B.type === 'osobne'}">Osobně v Praze</button>
       </div>
-      ${B.type ? slotsHTML() : `<p class="fine" style="margin-top:16px">Vyberte formu vyšetření a ukážu Vám volné termíny.</p>`}`;
+      ${B.type ? slotsHTML() : `<p class="fine" style="margin-top:16px">Vyberte formu vyšetření a ukážu Vám volné termíny.</p>`}
+      ${!S.odkonzultace ? '' : `<p class="fine" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line)">Raději si to nejdřív projdeme? <button type="button" class="linkbtn" data-act="radejikonzultace">Zpět na vstupní konzultaci ›</button></p>`}`;
   }
 
   return `<h3 class="grad" style="margin-top:0">Vstupní konzultace</h3>
@@ -571,7 +572,8 @@ function panelHTML() {
       <button type="button" data-btype="online" aria-pressed="${B.type === 'online'}"><b>Konzultant online</b><i>${fmt(CFG.price)} Kč</i></button>
       <button type="button" data-btype="osobne" aria-pressed="${B.type === 'osobne'}"><b>Konzultant v Praze</b><i>${fmt(CFG.price)} Kč</i></button>
     </div>
-    ${B.type === 'advisor' ? advisorHTML() : B.type ? slotsHTML() : `<p class="fine" style="margin-top:16px">Vyberte si podobu konzultace a ukážu Vám, jak dál.</p>`}`;
+    ${B.type === 'advisor' ? advisorHTML() : B.type ? koordinatorHTML() + slotsHTML() : `<p class="fine" style="margin-top:16px">Vyberte si podobu konzultace a ukážu Vám, jak dál.</p>`}
+    <p class="fine" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line)">Už máte jasno a konzultaci nepotřebujete? <button type="button" class="linkbtn" data-act="rovnouklekari">Objednejte se rovnou k lékaři za ${fmt(CFG.examPrice)} Kč ›</button><br>Vstupní konzultaci tím přeskočíte. Budeme ale potřebovat celý dotazník včetně rodného čísla, bez něj laboratoř žádanku na odběr nevystaví.</p>`;
 }
 
 /* Cenu ukazujeme velkým písmem až po volbě — dokud si klient nevybere, stojí
@@ -586,6 +588,19 @@ function priceHTML(type) {
     <p class="price-note">Částku Vám odečteme z první platby za program.</p>`;
 }
 
+/* Co klient za konzultaci s člověkem dostává. U Marcela AI to popsáno bylo,
+   u živého koordinátora ne, takže dražší varianta vypadala jako horká volba: jen
+   jméno, cena a výběr termínu. Marcelovo zadání 26. 11. 2026. */
+function koordinatorHTML() {
+  return `<div class="twin">
+    <p><b>Co na konzultaci projdeme.</b> Je to ${CFG.duration} minut s odborným koordinátorem na redukci hmotnosti a zdravý životní styl, online nebo osobně v Praze. Není to prodejní hovor a nic na ní nepodepisujete.</p>
+    <p>Projdeme <b>jak terapie probíhá</b>, co od ní čekat a co ne, jak se lék podává a jaké má vedlejší účinky. Řekneme si, <b>který přípravek Vám vychází a proč</b>, a projdeme <b>programy péče</b>: co je v ceně, čím se liší a kolik stojí léčivo v lékárně. Vyberete si program, který Vám sedí.</p>
+    <p>Zeptáte se na cokoli, co Vás zajímá, a doplníme to, co lékař potřebuje vědět před vyšetřením. O vhodnosti terapie rozhoduje vždycky lékař, ne my.</p>
+    <p><b>Konzultace nekončí povídáním.</b> Na jejím konci Vás objednáme k <b>lékařskému vyšetření</b> a pošleme Vám <b>žádanku na odběr krve</b>, <b>informovaný souhlas s léčbou</b> a <b>návrh smlouvy o zdravotní péči</b> sestavený podle programu, na kterém se domluvíme. Smlouva se podepisuje až po vyšetření a schválení terapie, takže si ji v klidu přečtete doma.</p>
+    <p class="fine">Částku ${fmt(CFG.price)} Kč Vám odečteme z první platby za program, takže to není náklad navíc.</p>
+  </div>`;
+}
+
 /* AI konzultant: žádný termín, jen symbolický poplatek předem. Klient musí
    vědět, že mluví s AI a proč mu to k něčemu je — proto to píšeme rovnou,
    ne drobným písmem pod čarou. Adresu, kde konzultant běží, stránka nezná;
@@ -597,7 +612,7 @@ function advisorHTML() {
   const body = `<div class="twin">
     <p><b>Nenechte se zmást.</b> ${esc(CFG.advisorName)} je vysoce inteligentní digitální dvojče našeho reálného konzultanta, které si sám vyškolil podle svých vlastních zkušeností a konzultací s klienty.</p>
     <p>Živého konzultanta přitom <b>plnohodnotně nahrazuje</b>. Projdete to samé a na stejné úrovni a můžete se ptát na všechno, na co byste se zeptali naživo — jak terapie probíhá, na ceny, na vedlejší účinky i na cokoliv dalšího. Rozdíl je jenom v tom, že nečekáte na volný termín. O vhodnosti terapie ale vždycky rozhoduje lékař.</p>
-    <p>Konzultace se spustí hned po zaplacení a platí ${CFG.advisorHours} hodin. Když zrovna spěcháte, nevadí. Během té doby se k ní můžete vrátit a projít si ji znovu.</p>
+    <p>Počítejte asi s půl hodinou, a když se budete hodně ptát, klidně i s hodinou — je to celá vstupní konzultace, ne pár odpovědí. Spustí se hned po zaplacení a platí ${CFG.advisorHours} hodin, takže když zrovna spěcháte, nevadí: během té doby se k ní můžete vrátit a projít si ji znovu.</p>
     <p><b>Konzultace nekončí povídáním.</b> Na jejím konci Vás čeká to samé co po konzultaci s živým koordinátorem: objednáme Vás k <b>lékařskému vyšetření</b> a pošleme Vám <b>žádanku na odběr krve</b>. K tomu dostanete klientskou dokumentaci — <b>informovaný souhlas s léčbou</b> a <b>návrh smlouvy o zdravotní péči</b> — sestavenou podle toho, na čem se spolu během konzultace domluvíte.</p>
 `;
   if (!CFG.advisorEnabled) return body + `</div>` + advisorSoonHTML();
@@ -669,7 +684,15 @@ function formHTML() {
     <label class="cbox"><input type="checkbox" id="c-now" data-consent="startNow" ${S.a.startNow ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
       <span>${ai
         ? 'Chci konzultaci spustit hned po zaplacení. Beru na vědomí, že jakmile proběhne, peníze se už nevrací.'
-        : `Chci, aby ${isExam() ? 'vyšetření proběhlo' : 'konzultace proběhla'} ve vybraném termínu. Beru na vědomí, že jakmile proběhne, peníze se už nevrací.`}</span></label>
+        : isExam()
+        /* U vyšetření se připomíná i to, co říká čl. 4.3 obchodních podmínek: zaplacené je
+           posouzení, ne jeho výsledek. Samotné podmínky pod tlačítkem nestačí, tohle je
+           jediná věta, kterou klient opravdu čte, a je to částka, u které se pak lidi
+           ptají. Marcelovo zadání 26. 11. 2026. */
+        ? 'Chci, aby vyšetření proběhlo ve vybraném termínu. Beru na vědomí, že jakmile proběhne, peníze se už nevrací, a to ani když lékař terapii nedoporučí: zaplacené jsou krevní testy a posouzení lékařem, ne jejich výsledek.'
+        : 'Chci, aby konzultace proběhla ve vybraném termínu. Beru na vědomí, že jakmile proběhne, peníze se už nevrací.'}</span></label>
+    <label class="cbox"><input type="checkbox" id="c-terms" data-consent="termsConsent" ${S.a.termsConsent ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
+      <span>Přečetl(a) jsem si <a href="${esc(podminkyUrl())}" target="_blank" rel="noopener" style="color:var(--ink)">obchodní podmínky</a> a souhlasím s nimi.</span></label>
     <button type="button" class="btn pri" id="bookBtn"${ai || slot ? '' : ' disabled'}>${ai ? `Objednat za ${fmt(CFG.advisorPrice)} Kč` : 'Rezervovat termín'}</button>
     ${ai ? '' : `<p class="fine" style="margin-top:12px">${lhutaVeta()}</p>`}
     ${podminkyVeta()}
@@ -753,11 +776,10 @@ function podminkyUrl() {
   try { return String((S.booking && S.booking.termsUrl) || CFG.termsUrl || '').trim(); }
   catch (e) { return String(CFG.termsUrl || '').trim(); }
 }
-function podminkyVeta() {
-  const u = podminkyUrl();
-  return u ? '<p class="fine" style="margin-top:10px">Objednávkou potvrzujete, že jste se seznámil'
-    + '(a) s <a href="' + esc(u) + '" target="_blank" rel="noopener">obchodními podmínkami</a>.</p>' : '';
-}
+/* Souhlas s podmínkami má od 26. 11. 2026 vlastní zaškrtávátko nad tlačítkem,
+   takže tahle věta by říkala totéž podruhé. Funkce zůstává prázdná, aby se nemusela
+   vyhánět ze všech míst, kde se volá. */
+function podminkyVeta() { return ''; }
 
 /* Dokdy termín držíme. Bere se čas z odpovědi serveru, ne pevné číslo —
    když se doba držení na serveru změní, stránka to řekne správně sama.
@@ -1139,6 +1161,26 @@ async function loadManage(vs, t) {
 document.addEventListener('click', async e => {
   const b = e.target.closest('button, a'); if (!b) return;
   if (b.dataset.act === 'restart') { resetAll(); return; }
+  /* Zkratka k lékaři. Marcelovo zadání 26. 11. 2026: kdo má jasno, nemusí
+     platit konzultaci a jde rovnou na vyšetření. Celá cesta už existuje
+     (kind=exam), jen do ní nevedla žádná cesta ze stránky. Přepíná se v jednom
+     okně, nikam klienta nepřesměrováváme, a rozdělaná volba se zahazuje: patřila
+     k jinému druhu termínu a sloty se mezi nimi nepromítají. */
+  if (b.dataset.act === 'rovnouklekari' || b.dataset.act === 'radejikonzultace') {
+    /* Druh termínu řídí adresa, ne uložený stav, a levý sloupec se přepisuje
+       jednorázově při startu (applyKind). Proto se přepíná přes adresu a stránka
+       se načte znovu: jinak by se klientovi změnila cena, ale nadpis a odrážky
+       vlevo by mu zůstaly od konzultace. Je to pořád jedno okno a jedna stránka,
+       vyplněný formulář přežije v sessionStorage a zahodí se jen rozdělaný
+       termín, který patřil k jinému druhu rezervace. */
+    S.odkonzultace = (b.dataset.act === 'rovnouklekari');
+    save();
+    const u = new URL(window.location.href);
+    if (S.odkonzultace) u.searchParams.set('kind', 'exam');
+    else { u.searchParams.delete('kind'); u.searchParams.delete('druh'); }
+    window.location.href = u.toString();
+    return;
+  }
   if (b.dataset.btype) { S.booking.type = b.dataset.btype; S.booking.slot = null; slotCache = null; rerender(); if (b.dataset.btype !== 'advisor') loadSlots(); return; }
   if (b.dataset.day) { S.booking.day = b.dataset.day; S.booking.slot = null; rerender(); return; }
   if (b.dataset.slot) { S.booking.slot = b.dataset.slot; rerender(); return; }
@@ -1253,6 +1295,11 @@ async function submitBooking(btn) {
      termínu, který absolvoval. Proto se na něj čeká stejně jako na ten první —
      není to drobné písmo, je to podmínka objednávky. */
   if (!S.a.startNow) return err('Zaškrtněte prosím i druhý souhlas, bez něj rezervaci založit nemůžeme.');
+  /* Obchodní podmínky se do 26. 11. 2026 jen potvrzovaly objednávkou, větou pod
+     tlačítkem. U částky za vstupní screening chceme aktivní souhlas, ne potvrzení
+     jednáním. Drží se zvlášť od souhlasu se zpracováním údajů schválně: je to jiný
+     právní důvod a slučovat je do jednoho zaškrtávátka se nemá. */
+  if (!S.a.termsConsent) return err('Prosím zaškrtněte souhlas s obchodními podmínkami.');
   if (isExam()) { const e = examFieldsError(); if (e) return err(e); }
 
   btn.disabled = true;
@@ -1271,7 +1318,12 @@ async function submitBooking(btn) {
         slot: ai ? '' : S.booking.slot, type: S.booking.type,
         name: S.a.name.trim(), email: S.a.email.trim(), phone: S.a.phone.trim(),
         street: S.a.street.trim(), city: S.a.city.trim(), zip: (S.a.zip || '').replace(/\s/g, ''),
-        consent: true, startNow: true, src: 'booking'
+        /* Souhlasy se posílají tak, jak je klient opravdu zaškrtl, ne natvrdo:
+           server si je zapisuje a musí sedět s tím, co se stalo na stránce.
+           Projít sem stejně může jen ten, kdo má všechny tři, kontroluje se výš. */
+        consent: S.a.bookConsent === true, startNow: S.a.startNow === true,
+        termsConsent: S.a.termsConsent === true, termsVersion: CFG.termsVersion || '',
+        src: 'booking'
       }, isExam() ? examFieldsPayload() : {}), 45000);
     } else {
       const vs = String(Date.now()).slice(-8);
@@ -1457,6 +1509,14 @@ function applyKind() {
   const step2 = document.getElementById('heroStep2');
   if (step2) step2.remove();
 }
+
+/* Cena screeningu v úvodní cedulce. Stála tam natvrdo a 24. 11. 2026, když
+   se cena měnila, se zapomněla: stránka pak čtyři dny
+   ukazovala klientům staré číslo. Teď se bere z CFG jako všude jinde. */
+(function () {
+  const el = document.getElementById('heroExamPrice');
+  if (el) el.textContent = fmt(CFG.examPrice);
+})();
 
 /* ---------- start ---------- */
 load();
