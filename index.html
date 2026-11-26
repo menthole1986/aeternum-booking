@@ -433,7 +433,7 @@ html,body{background:var(--ground);color:var(--ink)}
 
 <script>
 /* ==========================================================================
-   Aeternum Clinic — rezervace vstupní konzultace
+   Aeternum Clinic, rezervace vstupní konzultace
    Samostatná stránka se stejným rezervačním krokem jako screening.
    Parametry URL: ?id=SC260920-ABC123 (předvyplní údaje ze screeningu)
                   ?kind=exam (rezervace lékařského vyšetření místo konzultace);
@@ -553,7 +553,7 @@ function panelHTML() {
   if (B.paid && B.type === 'advisor') {
     return `<div class="success"><div class="tick">${icon('i-check')}</div><span class="eyebrow">Zaplaceno</span>
       <h3>Konzultace je připravená</h3>
-      <p class="lead" style="margin-top:14px">${esc(CFG.advisorName)} na Vás čeká. Nemusíte hned — odkaz platí ${CFG.advisorHours} hodin a během nich se ke konzultaci můžete vracet.</p>
+      <p class="lead" style="margin-top:14px">${esc(CFG.advisorName)} na Vás čeká. Nemusíte hned, odkaz platí ${CFG.advisorHours} hodin a během nich se ke konzultaci můžete vracet.</p>
       ${B.advisorUrl ? `<a class="btn pri" href="${esc(B.advisorUrl)}" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">Spustit konzultaci</a>`
         : `<p class="lead" style="margin-top:12px">Odkaz Vám posíláme e-mailem na <b style="color:var(--ink)">${esc(S.a.email)}</b>.</p>`}
       <p class="fine" style="margin-top:14px">Odkaz i doklad o platbě máme poslané na ${esc(S.a.email)}. Částku Vám odečteme z první platby za program.</p></div>`;
@@ -565,13 +565,13 @@ function panelHTML() {
        domyslela z prázdné hodnoty a klient četl „čtvrtek 1. ledna, 01:00,
        osobně v Praze“ — termín, který nikde neexistuje. */
     const kdy = isNaN(d.getTime()) ? ''
-      : `${esc(DOW[d.getDay()])} ${d.getDate()}. ${esc(MON[d.getMonth()])}, ${pad2(d.getHours())}:${pad2(d.getMinutes())} — ${B.type === 'online' ? 'online' : 'osobně v Praze'}.`;
+      : `${esc(DOW[d.getDay()])} ${d.getDate()}. ${esc(MON[d.getMonth()])}, ${pad2(d.getHours())}:${pad2(d.getMinutes())}, ${B.type === 'online' ? 'online' : 'osobně v Praze'}.`;
     return `<div class="success"><div class="tick">${icon('i-check')}</div><span class="eyebrow">Potvrzeno</span>
       <h3>${kdy ? 'Termín je Váš' : 'Platba dorazila'}</h3>
       ${kdy ? `<p class="lead" style="margin-top:14px">${kdy}</p>` : ''}
       <p class="lead" style="margin-top:12px">Potvrzení a pozvánku do kalendáře jsme poslali na <b style="color:var(--ink)">${esc(S.a.email)}</b>. Den před ${isExam() ? 'vyšetřením' : 'konzultací'} Vám přijde SMS připomínka.</p>
       ${B.needsData ? `<button type="button" class="btn pri" data-act="labnow" style="margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))">Pokračovat na vstupní dotazník</button>
-      <p class="fine" style="margin-top:10px">Zbývá poslední krok — bez něj nemůžeme připravit žádanku ani podklady pro lékaře.</p>` : ''}
+      <p class="fine" style="margin-top:10px">Zbývá poslední krok, bez něj nemůžeme připravit žádanku ani podklady pro lékaře.</p>` : ''}
       ${B.manageUrl ? `<a class="btn ghost" href="${esc(B.manageUrl)}" style="margin-top:clamp(${B.needsData ? '10px,calc(.9*var(--u)),calc(14px*var(--k))' : '18px,calc(1.5*var(--u)),calc(28px*var(--k))'})">Přesunout nebo zrušit termín</a>` : ''}
       <p class="fine" style="margin-top:14px">${lhutaVeta(B.minHours, B.lateForfeits)}</p></div>`;
   }
@@ -595,7 +595,7 @@ function panelHTML() {
     ${priceHTML(B.type)}
     <div class="seg3${(CFG.advisorEnabled || CFG.advisorSoon) ? '' : ' dva'}" role="group" aria-label="Podoba konzultace">
       ${(CFG.advisorEnabled || CFG.advisorSoon) ? `<button type="button" data-btype="advisor"
-        aria-pressed="${B.type === 'advisor'}"${CFG.advisorEnabled ? '' : ' title="Zatím jen k nahlédnutí — objednat ho ještě nejde"'}>
+        aria-pressed="${B.type === 'advisor'}"${CFG.advisorEnabled ? '' : ' title="Zatím jen k nahlédnutí, objednat ho ještě nejde"'}>
         <b>${esc(CFG.advisorName)}</b><i>${fmt(CFG.advisorPrice)} Kč</i>
         ${CFG.advisorEnabled ? '' : '<span class="soon">připravujeme</span>'}</button>` : ''}
       <button type="button" data-btype="online" aria-pressed="${B.type === 'online'}"><b>Konzultant online</b><i>${fmt(CFG.price)} Kč</i></button>
@@ -647,7 +647,7 @@ function advisorHTML() {
 `;
   if (!CFG.advisorEnabled) return body + `</div>` + advisorSoonHTML();
   if (!S.screeningId) {
-    return body + `<p class="fine">Konzultace navazuje na vyplněný e-screening — ${esc(CFG.advisorName)} mluví o Vašich konkrétních číslech. Vyplňte ho prosím nejdřív, nebo si vyberte konzultanta.</p></div>`;
+    return body + `<p class="fine">Konzultace navazuje na vyplněný e-screening: ${esc(CFG.advisorName)} mluví o Vašich konkrétních číslech. Vyplňte ho prosím nejdřív, nebo si vyberte konzultanta.</p></div>`;
   }
   return body + `</div>${formHTML()}`;
 }
@@ -657,7 +657,7 @@ function advisorHTML() {
    tlačítko s cedulí „připravujeme" o tom neřekne nic. Objednat ho nejde:
    místo formuláře se ukáže tahle cedule, takže se nikde nespustí platba. */
 function advisorSoonHTML() {
-  return `<p class="emptyslots"><b>${esc(CFG.advisorName)} se ještě dolaďuje</b>, objednat si ho zatím nejde —
+  return `<p class="emptyslots"><b>${esc(CFG.advisorName)} se ještě dolaďuje</b>, objednat si ho zatím nejde,
     chtěli jsme ale, abyste dopředu věděli, co Vás u něj čeká. Než ho spustíme, provede Vás vstupní
     konzultací živý koordinátor péče; stačí si výš vybrat online nebo osobně v Praze.</p>`;
 }
@@ -777,7 +777,7 @@ function examFieldsPayload() {
 function examFieldsHTML() {
   const miry = !(Number(S.a.height) > 0 && Number(S.a.weight) > 0);
   return `<p class="fsec">Údaje pro laboratoř</p>
-    <p class="fine">Bez nich laboratoř žádanku na odběr nevystaví. Rodné číslo posíláme jen jí, v e-mailech ho nikdy neuvádíme — a když rezervaci nezaplatíte, smažeme ho.</p>
+    <p class="fine">Bez nich laboratoř žádanku na odběr nevystaví. Rodné číslo posíláme jen jí, v e-mailech ho nikdy neuvádíme, a když rezervaci nezaplatíte, smažeme ho.</p>
     <div class="ufrow">${uf('birthDate', 'Datum narození', { type: 'date' })}
       ${uf('birthNumber', 'Rodné číslo', { inputmode: 'numeric', placeholder: 'devět nebo deset číslic, bez lomítka' })}</div>
     ${miry ? `<div class="ufrow">${uf('height', 'Výška (cm)', { type: 'number', inputmode: 'numeric', placeholder: '168' })}
@@ -836,15 +836,19 @@ function paymentHTML() {
       <dt>Částka</dt><dd>${fmt(h.amount || (ai ? CFG.advisorPrice : kindPrice())) } Kč</dd>
     </dl>
     <div class="hold"><span class="dot"></span><span>${ai
-      ? `Po zaplacení prosím nezavírejte toto okno — odkaz ke konzultaci se otevře rovnou tady a zároveň Vám přijde e-mailem. Platí ${CFG.advisorHours} hodin, takže nic nespěchá.`
-      : `Po zaplacení prosím nezavírejte toto okno — čeká na Vás ještě krátký vstupní dotazník. Termín Vám držíme ${holdText(h)}. Jakmile platba dorazí, pošleme Vám potvrzení a pozvánku do kalendáře.`}</span></div>
+      ? `Po zaplacení prosím nezavírejte toto okno, odkaz ke konzultaci se otevře rovnou tady a zároveň Vám přijde e-mailem. Platí ${CFG.advisorHours} hodin, takže nic nespěchá.`
+      : `Po zaplacení prosím nezavírejte toto okno, čeká na Vás ještě krátký vstupní dotazník. Termín Vám držíme ${holdText(h)}. Jakmile platba dorazí, pošleme Vám potvrzení a pozvánku do kalendáře.`}</span></div>
     ${isExam() ? `<div class="nextup">
       <p class="small-caps">Co se stane po zaplacení</p>
       <ol>
         <li>Obratem Vám e-mailem přijde <b>žádanka na odběr krve</b> a potvrzení termínu.</li>
+        <li>Spolu s tím dostanete klientskou dokumentaci: <b>informovaný souhlas</b>
+          a <b>návrh Smlouvy o zdravotní péči</b>. Podepisuje se v den lékařského vyšetření.</li>
         <li>S žádankou zajdete na odběrové místo Synlab, nejpozději dva dny před vyšetřením. Výsledky bývají do 48 hodin.</li>
         <li>Vyšetření trvá 45 minut. Lékař projde výsledky s Vámi a posoudí, jestli je terapie vhodná.</li>
-        <li>Když ji schválí, nastaví dávkování, vystaví recept a vyberete si program péče.</li>
+        <li>Když ji schválí, nastaví dávkování a vystaví recept. Při osobním vyšetření
+          si léčivo vyzvednete rovnou v lékárně v přízemí budovy, při online vyšetření
+          Vám obratem přijde e-recept.</li>
       </ol></div>` : ''}
     <div class="paychoice">
       <p class="small-caps" style="margin-bottom:12px">Vyberte způsob platby</p>
@@ -950,7 +954,7 @@ function labFormHTML() {
     <p class="fine" style="margin-top:14px">Děkujeme, toto okno už můžete zavřít.</p></div>`;
 
   return `<span class="eyebrow plain">Poslední krok</span><h3 class="grad">Vstupní dotazník</h3>
-    <p class="lead" style="margin-top:12px">Vyplňte ho prosím hned teď — laboratoř z něj vystaví žádanku a lékař podle něj připraví Váš protokol.</p>
+    <p class="lead" style="margin-top:12px">Vyplňte ho prosím hned teď, laboratoř z něj vystaví žádanku a lékař podle něj připraví Váš protokol.</p>
     <div class="bform" style="margin-top:18px">
       <div class="ufrow one">${uf('name', 'Jméno a příjmení podle průkazu', { autocomplete: 'name', placeholder: 'Jana Nováková' })}</div>
       <div class="ufrow one">${uf('birthDate', 'Datum narození', { type: 'date' })}</div>
@@ -970,7 +974,7 @@ function labFormHTML() {
       <div class="ufrow one">${uf('gyn', 'Gynekologické či hormonální potíže', { placeholder: 'PMOS (PCOS), inzulinová rezistence…' })}</div>
       <div class="ufrow one">${uf('pastAttempts', 'Dřívější pokusy o hubnutí a výsledek', { placeholder: 'Co jste zkoušel(a) a jak to dopadlo' })}</div>
       <div class="ufrow one">${uf('pastDrugs', 'Užíval(a) jste léky na hubnutí?', { placeholder: 'Ne / Saxenda, Ozempic…' })}</div>
-      <div class="ufrow one">${uf('diet', 'Typický jídelníček — snídaně, oběd, večeře, svačiny, sladké', { placeholder: 'Klidně upřímně a stručně' })}</div>
+      <div class="ufrow one">${uf('diet', 'Typický jídelníček: snídaně, oběd, večeře, svačiny, sladké', { placeholder: 'Klidně upřímně a stručně' })}</div>
       <div class="ufrow one">${uf('water', 'Kolik čisté vody denně', { placeholder: '1,5 l' })}</div>
       <div class="ufrow one">${uf('alcohol', 'Vztah k alkoholu', { placeholder: 'Nepiji / příležitostně' })}</div>
       <div class="ufrow one">${uf('smoking', 'Kouření či nikotin', { placeholder: 'Nekouřím' })}</div>
@@ -996,7 +1000,7 @@ const LIFESTYLE_Q = [
   ['dietLunch', 'Oběd', 'Co bývá nejčastěji'],
   ['dietSnack2', 'Odpolední svačina nebo snack', 'Sušenka, jogurt, nic…'],
   ['dietDinner', 'Večeře', 'Co a kolem kolika hodin'],
-  ['dietSweet', 'Sladká nebo slaná tečka', 'Upřímně — čokoláda, chipsy, nic'],
+  ['dietSweet', 'Sladká nebo slaná tečka', 'Upřímně: čokoláda, chipsy, nic'],
   ['dietDrinks', 'Co pijete přes den', 'Voda, káva, slazené, alkohol'],
   ['water', 'Kolik čisté vody denně', '1,5 l'],
   ['alcohol', 'Vztah k alkoholu', 'Nepiji / příležitostně'],
@@ -1014,10 +1018,10 @@ function lifestyleFormHTML() {
       <p class="lead" style="margin-top:14px">Lékař i trenér si to přečtou před Vaším vyšetřením, takže se Vás na to nebudeme ptát znovu.</p></div>`;
   }
   return `<span class="eyebrow">Ještě pár otázek</span><h3>Jak žijete</h3>
-    <p class="lead" style="margin-top:12px">Z těchhle odpovědí staví lékař s trenérem Váš program. Nespěchá to a nic tím neblokujete — termín máte potvrzený.</p>
+    <p class="lead" style="margin-top:12px">Z těchhle odpovědí staví lékař s trenérem Váš program. Nespěchá to a nic tím neblokujete, termín máte potvrzený.</p>
     <div class="bform" style="margin-top:18px">
       ${LIFESTYLE_Q.map(q => (q[0] === 'dietBreakfast'
-        ? `<p class="fsec">Typický den na talíři</p><p class="fine">Klidně upřímně — tohle není zkouška a trenér s tím pracuje líp než s „jím normálně“.</p><div class="ufrow one">${uf(q[0], q[1], { placeholder: q[2] })}</div>`
+        ? `<p class="fsec">Typický den na talíři</p><p class="fine">Klidně upřímně, tohle není zkouška a trenér s tím pracuje líp než s „jím normálně“.</p><div class="ufrow one">${uf(q[0], q[1], { placeholder: q[2] })}</div>`
         : `<div class="ufrow one">${uf(q[0], q[1], { placeholder: q[2] })}</div>`)).join('')}
       <button type="button" class="btn pri" id="lifeBtn">Odeslat</button>
       <span class="err" id="manageErr" role="alert"></span>
@@ -1071,7 +1075,7 @@ async function submitLabData(btn) {
   if (!(a.gyn || '').toString().trim()) return err('Vyplňte prosím: Gynekologické či hormonální potíže');
   if (!(a.pastAttempts || '').toString().trim()) return err('Vyplňte prosím: Dřívější pokusy o hubnutí a výsledek');
   if (!(a.pastDrugs || '').toString().trim()) return err('Vyplňte prosím: Užíval(a) jste léky na hubnutí?');
-  if (!(a.diet || '').toString().trim()) return err('Vyplňte prosím: Typický jídelníček — snídaně, oběd, večeře, svačiny, sladké');
+  if (!(a.diet || '').toString().trim()) return err('Vyplňte prosím: Typický jídelníček: snídaně, oběd, večeře, svačiny, sladké');
   if (!(a.water || '').toString().trim()) return err('Vyplňte prosím: Kolik čisté vody denně');
   if (!(a.alcohol || '').toString().trim()) return err('Vyplňte prosím: Vztah k alkoholu');
   if (!(a.smoking || '').toString().trim()) return err('Vyplňte prosím: Kouření či nikotin');
@@ -1121,7 +1125,7 @@ function managePanelHTML() {
     <button type="button" class="btn pri" style="margin-top:20px" data-act="restart">Vybrat nový termín</button></div>`;
   if (M.done === 'reschedule') return `<div class="success"><div class="tick">${icon('i-check')}</div><span class="eyebrow">Přesunuto</span>
     <h3>Nový termín je Váš</h3>
-    <p class="lead" style="margin-top:14px">${esc(manageWhen(M.slot))} — ${M.type === 'online' ? 'online' : 'osobně v Praze'}.</p>
+    <p class="lead" style="margin-top:14px">${esc(manageWhen(M.slot))}, ${M.type === 'online' ? 'online' : 'osobně v Praze'}.</p>
     <p class="lead" style="margin-top:12px">Potvrzení a novou pozvánku do kalendáře jsme poslali e-mailem.</p></div>`;
 
   if ((M.needsData || M.dataDone) && M.mode !== 'reschedule' && M.mode !== 'cancel') return labFormHTML();
@@ -1157,7 +1161,7 @@ function managePanelHTML() {
   return head + labHTML() + docsHTML() + `<button type="button" class="btn pri" style="margin-top:22px" data-act="mreschedule">Přesunout termín</button>
     <button type="button" class="btn ghost" style="margin-top:10px" data-act="mcancel">Zrušit rezervaci</button>
     <p class="fine" style="margin-top:16px">${new Date(M.slot).getTime() < Date.now()
-      ? 'Původní konzultace proběhla bez Vás — nový termín si vyberte, kdy se Vám hodí. Platit znovu nic nebudete.'
+      ? 'Původní konzultace proběhla bez Vás, nový termín si vyberte, kdy se Vám hodí. Platit znovu nic nebudete.'
       : `${lhutaVeta(M.minHours, M.lateForfeits)} Vždycky tady, ne telefonem.`}</p>`;
 }
 
@@ -1308,7 +1312,7 @@ const BOOK_ERRORS = {
   need_screening: 'Konzultace s Marcelem AI navazuje na vyplněný e-screening. Vyplňte ho prosím nejdřív, nebo si vyberte konzultanta.',
   contra_block: 'Podle Vašeho dotazníku Vám terapii nabídnout nemůžeme. Zavolejte nám prosím na +420 775 481 700, Vaše možnosti rádi probereme.',
   advisor_contra: 'Podle Vašeho dotazníku Vám terapii nabídnout nemůžeme, a konzultaci bychom Vám tedy prodávali zbytečně. Zavolejte nám prosím na +420 775 481 700.',
-  advisor_off: 'Marcela AI právě dolaďujeme. Vyberte si prosím konzultanta — online nebo osobně v Praze.'
+  advisor_off: 'Marcela AI právě dolaďujeme. Vyberte si prosím konzultanta, online nebo osobně v Praze.'
 };
 function bookError(x) {
   const code = x && x.code;
@@ -1352,7 +1356,7 @@ async function submitBooking(btn) {
     let hold;
     if (CFG.apiUrl) {
       hold = await api('hold', Object.assign({
-        id: S.screeningId, kind: ai ? 'advisor' : S.kind,
+        id: S.screeningId, kind: ai ? 'advisor' : S.kind, variant: S.plan || '',
         slot: ai ? '' : S.booking.slot, type: S.booking.type,
         name: S.a.name.trim(), email: S.a.email.trim(), phone: S.a.phone.trim(),
         street: S.a.street.trim(), city: S.a.city.trim(), zip: (S.a.zip || '').replace(/\s/g, ''),
@@ -1528,7 +1532,7 @@ const EXAM_HERO = {
   fine: 'Cena zahrnuje odběr krve v Synlabu i lékařské vyšetření. Vyšetření trvá 45 minut a může proběhnout online nebo osobně v Praze. '
     + 'Žádanku na odběr Vám pošleme hned po úhradě. Na odběr si musíte osobně zajít na odběrové místo a výsledky bývají obvykle do 48 hodin, '
     + 'takže doporučujeme jít alespoň 3–4 dny před vyšetřením; když to nestíháte, zvolte radši pozdější termín vyšetření. '
-    + 'Vřele doporučujeme zajistit si k němu i analýzu složení těla — měření na InBody nebo podobném přístroji. '
+    + 'Vřele doporučujeme zajistit si k němu i analýzu složení těla, měření na InBody nebo podobném přístroji. '
     + 'Povinná není, ale pomůže nám Váš případ posoudit výrazně přesněji: uvidíme poměr svalů a tuku, ne jen číslo na váze. '
     + 'Dělají ji například fitness centra nebo i některé polikliniky; sami ji zatím provádíme jenom osobně v ordinaci.'
 };
@@ -1562,6 +1566,10 @@ function applyKind() {
 /* ---------- start ---------- */
 load();
 if (URLP.get('id')) S.screeningId = URLP.get('id');
+/* Program, který si klient vybral už ve výsledku screeningu. Nese ho adresa,
+   aby ho nemusel vybírat podruhé a aby ho měla rezervace zapsaný i u toho,
+   kdo přeskočil vstupní konzultaci. */
+if (URLP.get('v')) S.plan = URLP.get('v');
 /* Druh termínu řídí adresa, ne uložený stav. Kdo si v jedné záložce
    rezervoval konzultaci a pak otevřel odkaz na vyšetření, musí dostat
    vyšetření — a rozdělanou volbu formy a termínu k tomu zahodíme, patřila
