@@ -158,6 +158,12 @@ h3.grad,.h3grad{display:block;width:fit-content;align-self:flex-start;background
 .summ dd{margin:0;font-weight:700;text-align:right}
 .paybox{margin-top:18px;display:flex;flex-direction:column;gap:12px}
 .paychoice{margin-top:clamp(18px,calc(1.5*var(--u)),calc(28px*var(--k)))}
+/* Co klienta čeká po platbě. Před 26. 11. 2026 to stálo jen drobně v úvodu
+   stránky, kam už klient u platby nevidí, a také jen částečně. */
+.nextup{border:1px solid var(--line);border-radius:18px;padding:clamp(14px,calc(1.2*var(--u)),calc(22px*var(--k)));margin-bottom:clamp(14px,calc(1.2*var(--u)),calc(22px*var(--k)))}
+.nextup ol{margin:10px 0 0;padding-left:1.25em;display:grid;gap:8px;font-size:clamp(12.5px,calc(.85*var(--u)),calc(16px*var(--k)));line-height:1.5;color:var(--muted)}
+.nextup li::marker{color:var(--dim);font-weight:700}
+.nextup b{color:var(--ink)}
 .payopt{border:1px solid var(--line2);border-radius:20px;padding:clamp(16px,calc(1.3*var(--u)),calc(24px*var(--k)))}
 .payopt + .paysep{display:flex;align-items:center;gap:14px;margin:14px 0;color:var(--dim);font-size:clamp(10px,calc(.7*var(--u)),calc(12px*var(--k)));letter-spacing:.24em;font-weight:700}
 .paysep::before,.paysep::after{content:"";flex:1;height:1px;background:var(--line)}
@@ -638,6 +644,300 @@ function advisorHTML() {
     <p>Živého konzultanta přitom <b>plnohodnotně nahrazuje</b>. Projdete to samé a na stejné úrovni a můžete se ptát na všechno, na co byste se eventuálně zeptali naživo. Je připravený téměř na všechno.</p>
     <p>Rozdíl je jenom v tom, že nečekáte na volný termín. O vhodnosti terapie ale vždycky rozhoduje lékař.</p>
     <p><b>Konzultace nekončí povídáním.</b> Na jejím konci Vás čeká to samé co po konzultaci s živým koordinátorem. Objedná Vás k <b>lékařskému vyšetření</b> a pošleme Vám <b>žádanku na odběr krve</b>. K tomu od něj dostanete klientskou dokumentaci, sestavenou podle toho, na čem se spolu během konzultace domluvíte.</p>
+`;
+  if (!CFG.advisorEnabled) return body + `</div>` + advisorSoonHTML();
+  if (!S.screeningId) {
+    return body + `<p class="fine">Konzultace navazuje na vyplněný e-screening — ${esc(CFG.advisorName)} mluví o Vašich konkrétních číslech. Vyplňte ho prosím nejdřív, nebo si vyberte konzultanta.</p></div>`;
+  }
+  return body + `</div>${formHTML()}`;
+}
+
+/* Dokud Marcela AI nespustíme, tlačítko přesto jde zmáčknout. Klient si má
+   přečíst, co umí a co od něj čekat, a vrátit se, až to půjde — zavřené
+   tlačítko s cedulí „připravujeme" o tom neřekne nic. Objednat ho nejde:
+   místo formuláře se ukáže tahle cedule, takže se nikde nespustí platba. */
+function advisorSoonHTML() {
+  return `<p class="emptyslots"><b>${esc(CFG.advisorName)} se ještě dolaďuje</b>, objednat si ho zatím nejde —
+    chtěli jsme ale, abyste dopředu věděli, co Vás u něj čeká. Než ho spustíme, provede Vás vstupní
+    konzultací živý koordinátor péče; stačí si výš vybrat online nebo osobně v Praze.</p>`;
+}
+
+function slotsHTML(withForm = true) {
+  if (!slotCache) {
+    loadSlots();
+    return `<div class="skel-days">${[0,1,2,3,4,5,6].map(() => '<div class="skel"></div>').join('')}</div>
+      <div class="skel-times">${[0,1,2,3,4,5].map(() => '<div class="skel"></div>').join('')}</div>
+      <p class="skel-note"><span class="sp dark"></span><span>Hledám volné termíny v kalendáři…</span></p>`;
+  }
+  if (!slotCache.length) return `<p class="emptyslots">V nejbližších ${CFG.leadDays} dnech už nemáme volno. Zavolejte nám prosím na ${esc(CFG.phone)}, termín najdeme.</p>`;
+  const days = [...new Set(slotCache.map(s => s.slice(0, 10)))];
+  const sel = S.booking.day && days.includes(S.booking.day) ? S.booking.day : days[0];
+  S.booking.day = sel;
+  const times = slotCache.filter(s => s.startsWith(sel));
+  return `<div class="days" role="group" aria-label="Den">${days.map(d => {
+      const dt = new Date(d + 'T12:00:00');
+      return `<button type="button" class="day" data-day="${d}" aria-pressed="${d === sel}"><b>${dt.getDate()}. ${dt.getMonth() + 1}.</b><span>${DOW_SHORT[dt.getDay()]}</span></button>`;
+    }).join('')}</div>
+    <div class="times" role="group" aria-label="Čas">${times.map(t => {
+      const dt = new Date(t);
+      return `<button type="button" class="time" data-slot="${t}" aria-pressed="${S.booking.slot === t}">${pad2(dt.getHours())}:${pad2(dt.getMinutes())}</button>`;
+    }).join('')}</div>
+    ${withForm ? formHTML() : ''}`;
+}
+
+function uf(key, label, o = {}) {
+  const val = S.a[key] ?? '';
+  return `<div class="uf" id="w-${key}"><label for="f-${key}">${esc(label)}</label>
+    <input id="f-${key}" type="${o.type || 'text'}" inputmode="${o.inputmode || 'text'}" autocomplete="${o.autocomplete || 'off'}" placeholder="${esc(o.placeholder || '')}" data-txt="${key}" value="${esc(val)}"></div>`;
+}
+
+function formHTML() {
+  const ai = S.booking.type === 'advisor';
+  const slot = S.booking.slot ? new Date(S.booking.slot) : null;
+  const pick = ai
+    ? `<p class="picked">${icon('i-check')}<span>Konzultace s <b>${esc(CFG.advisorWith)}</b> za <b>${fmt(CFG.advisorPrice)} Kč</b>, bez čekání na termín</span></p>`
+    : slot
+    ? `<p class="picked">${icon('i-check')}<span>Vybráno: <b>${DOW[slot.getDay()]} ${slot.getDate()}. ${slot.getMonth() + 1}.</b> v <b>${pad2(slot.getHours())}:${pad2(slot.getMinutes())}</b></span></p>`
+    : `<p class="fine">Vyberte si čas výše a pak rezervaci potvrďte.</p>`;
+  return `<div class="bform">
+    ${pick}
+    <div class="ufrow">${uf('name', 'Jméno a příjmení', { autocomplete: 'name', placeholder: 'Jana Nováková' })}
+      ${uf('email', 'E-mail', { type: 'email', inputmode: 'email', autocomplete: 'email', placeholder: 'jana@email.cz' })}</div>
+    <div class="ufrow one">${uf('phone', 'Telefon', { type: 'tel', inputmode: 'tel', autocomplete: 'tel', placeholder: '+420 777 123 456' })}</div>
+    <div class="ufrow one">${uf('street', 'Ulice a číslo popisné', { autocomplete: 'street-address', placeholder: 'Chlumčanského 497/5' })}</div>
+    <div class="ufrow">${uf('city', 'Město', { autocomplete: 'address-level2', placeholder: 'Praha 8-Libeň' })}
+      ${uf('zip', 'PSČ', { inputmode: 'numeric', autocomplete: 'postal-code', placeholder: '180 00' })}</div>
+    <p class="fine">${ai ? 'Adresu potřebujeme na daňový doklad, e-mail na odkaz ke konzultaci.' : `Telefon potřebujeme na SMS připomínku 24 hodin před ${isExam() ? 'vyšetřením' : 'konzultací'}, adresu na daňový doklad.`}</p>
+    ${isExam() ? examFieldsHTML() : ''}
+    <label class="cbox"><input type="checkbox" id="c-book" data-consent="bookConsent" ${S.a.bookConsent ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
+      <span>Souhlasím se zpracováním uvedených údajů za účelem rezervace ${isExam() ? 'vyšetření' : 'konzultace'} a s tím, aby mě Aeternum Clinic v této věci kontaktovala. Více v <a href="${CFG.gdprUrl}" target="_blank" rel="noopener" style="color:var(--ink)">zásadách zpracování osobních údajů</a>.</span></label>
+    <label class="cbox"><input type="checkbox" id="c-now" data-consent="startNow" ${S.a.startNow ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
+      <span>${ai
+        ? 'Chci konzultaci spustit hned po zaplacení. Beru na vědomí, že jakmile proběhne, peníze se už nevrací.'
+        : isExam()
+        /* U vyšetření se připomíná i to, co říká čl. 4.3 obchodních podmínek: zaplacené je
+           posouzení, ne jeho výsledek. Samotné podmínky pod tlačítkem nestačí, tohle je
+           jediná věta, kterou klient opravdu čte, a je to částka, u které se pak lidi
+           ptají. Marcelovo zadání 26. 11. 2026. */
+        ? 'Chci, aby vyšetření proběhlo ve vybraném termínu. Beru na vědomí, že jakmile proběhne, peníze se už nevrací, a to ani když lékař terapii nedoporučí: zaplacené jsou krevní testy a posouzení lékařem, ne jejich výsledek.'
+        : 'Chci, aby konzultace proběhla ve vybraném termínu. Beru na vědomí, že jakmile proběhne, peníze se už nevrací.'}</span></label>
+    <label class="cbox"><input type="checkbox" id="c-terms" data-consent="termsConsent" ${S.a.termsConsent ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
+      <span>Přečetl(a) jsem si <a href="${esc(podminkyUrl())}" target="_blank" rel="noopener" style="color:var(--ink)">obchodní podmínky</a> a souhlasím s nimi.</span></label>
+    <button type="button" class="btn pri" id="bookBtn"${ai || slot ? '' : ' disabled'}>${ai ? `Objednat za ${fmt(CFG.advisorPrice)} Kč` : 'Rezervovat termín'}</button>
+    ${ai ? '' : `<p class="fine" style="margin-top:12px">${lhutaVeta()}</p>`}
+    ${podminkyVeta()}
+    <span class="err" id="bookErr" role="alert"></span></div>`;
+}
+
+/* Údaje pro laboratoř a pro lékaře. U vyšetření se na ně ptáme hned
+   v objednávce, ne až po platbě: klient je vyplní na jednom místě a po
+   zaplacení už ho nikam neposíláme. Rodné číslo chceme jen kvůli žádance do
+   laboratoře; když rezervace vyprší nezaplacená, server ho smaže.
+
+   Výšku a váhu vyplňuje jen ten, u koho je neznáme ze screeningu. */
+/* Stejné kontroly, jaké má dodatečný formulář. Mít je dvakrát je horší než
+   mít je jednou, ale obě cesty posílají jiné akci a jiné pole — tady je navíc
+   potřeba chytit chybu dřív, než se zabere termín. */
+const EXAM_REQUIRED = [];
+
+/* Co po klientovi chceme před platbou: přesně to, co potřebuje laboratoř do
+   žádanky, a nic navíc. Jméno, adresu, e-mail a telefon už formulář má, takže
+   zbývá datum narození a rodné číslo — a výška s váhou u toho, u koho je
+   neznáme ze screeningu. Pohlaví si server odvodí z rodného čísla.
+
+   Onkologie a těhotenství se nově ptá screening, protože terapii vylučují.
+   Zbytek anamnézy (léky, alergie, životní styl) zjistí lékař při vyšetření;
+   držet kvůli tomu klienta u dvacetipoložkového formuláře před platbou nemá
+   smysl a nic to neurychlí. */
+function examFieldsError() {
+  const a = S.a;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(a.birthDate || '')) return 'Vyplňte prosím datum narození.';
+/* Rodné číslo sbíráme i ukládáme bez lomítka. Kdo ho napíše, nemá důvod to
+   opravovat růčně — utřeme ho za něj, stejně jako mezery. */
+function rcOcistit(v) { return String(v || '').replace(/[\s\/]/g, ''); }
+
+  if (!/^\d{9,10}$/.test(rcOcistit(a.birthNumber))) return 'Rodné číslo zadejte jako devět nebo deset číslic, bez lomítka a bez mezer.';
+  if (!(Number(a.height) > 0 && Number(a.weight) > 0)) {
+    const h = Number(a.height), w = Number(a.weight);
+    if (!(h >= 120 && h <= 230)) return 'Vyplňte prosím výšku v centimetrech.';
+    if (!(w >= 30 && w <= 350)) return 'Vyplňte prosím váhu v kilogramech.';
+  }
+  if (!a.labConsent) return 'Bez souhlasu údaje laboratoři předat nemůžeme.';
+  return '';
+}
+function examFieldsPayload() {
+  const a = S.a, out = {
+    birthDate: a.birthDate, birthNumber: rcOcistit(a.birthNumber), labConsent: true
+  };
+  if (Number(a.height) > 0) out.height = Number(a.height);
+  if (Number(a.weight) > 0) out.weight = Number(a.weight);
+  return out;
+}
+
+function examFieldsHTML() {
+  const miry = !(Number(S.a.height) > 0 && Number(S.a.weight) > 0);
+  return `<p class="fsec">Údaje pro laboratoř</p>
+    <p class="fine">Bez nich laboratoř žádanku na odběr nevystaví. Rodné číslo posíláme jen jí, v e-mailech ho nikdy neuvádíme — a když rezervaci nezaplatíte, smažeme ho.</p>
+    <div class="ufrow">${uf('birthDate', 'Datum narození', { type: 'date' })}
+      ${uf('birthNumber', 'Rodné číslo', { inputmode: 'numeric', placeholder: 'devět nebo deset číslic, bez lomítka' })}</div>
+    ${miry ? `<div class="ufrow">${uf('height', 'Výška (cm)', { type: 'number', inputmode: 'numeric', placeholder: '168' })}
+      ${uf('weight', 'Váha (kg)', { type: 'number', inputmode: 'numeric', placeholder: '92' })}</div>` : ''}
+    <label class="cbox"><input type="checkbox" id="c-lab" data-consent="labConsent" ${S.a.labConsent ? 'checked' : ''}><span class="box">${icon('i-check')}</span>
+      <span>Souhlasím, aby Aeternum Clinic předala tyto údaje smluvní laboratoři za účelem objednání odběru a provedení vyšetření.</span></label>`;
+}
+
+/* Věta o lhůtě. Kolik hodin a jestli částka propadá říká server (minHours,
+   lateForfeits) — konzultace má osm hodin a propadá, vyšetření dvanáct
+   a klinika ho přesune. Stránka si to nedomýšlí: kdyby se spletla v mírnější
+   stranu, klient by se tím řídil a měl by pravdu. */
+function lhutaVeta(h, propada) {
+  const vys = isExam();
+  const n = h || (vys ? 12 : 8);
+  propada = propada == null ? !vys : !!propada;
+  return propada
+    ? `Termín si můžete přesunout nebo zrušit sami a zdarma, až do ${n} hodin před začátkem. Později už to nejde a uhrazená částka propadá.`
+    : `Termín si můžete přesunout nebo zrušit sami až do ${n} hodin před začátkem, později nám napište a posuneme ho. Uhrazená částka propadá jen tehdy, když se bez omluvy nedostavíte.`;
+}
+
+/* Odkaz na obchodní podmínky. Server posílá platnou adresu, CFG má zálohu;
+   když ani jedno není, odkaz se neukáže — vést klienta na stránku, která
+   neexistuje, je horší než neodkazovat nikam. */
+function podminkyUrl() {
+  try { return String((S.booking && S.booking.termsUrl) || CFG.termsUrl || '').trim(); }
+  catch (e) { return String(CFG.termsUrl || '').trim(); }
+}
+/* Souhlas s podmínkami má od 26. 11. 2026 vlastní zaškrtávátko nad tlačítkem,
+   takže tahle věta by říkala totéž podruhé. Funkce zůstává prázdná, aby se nemusela
+   vyhánět ze všech míst, kde se volá. */
+function podminkyVeta() { return ''; }
+
+/* Dokdy termín držíme. Bere se čas z odpovědi serveru, ne pevné číslo —
+   když se doba držení na serveru změní, stránka to řekne správně sama.
+   Kdyby čas nepřišel, napíšeme to obecně, ať tam nesvítí nesmysl. */
+function holdText(h) {
+  const t = h && h.holdUntil ? new Date(h.holdUntil) : null;
+  if (!t || isNaN(t.getTime())) return 'několik hodin';
+  const hh = String(t.getHours()).padStart(2, '0');
+  const mm = String(t.getMinutes()).padStart(2, '0');
+  const dnes = new Date().toDateString() === t.toDateString();
+  return (dnes ? 'do ' : 'do zítřka do ') + hh + ':' + mm;
+}
+
+function paymentHTML() {
+  const h = S.booking.hold, ai = S.booking.type === 'advisor';
+  const d = ai ? null : new Date(S.booking.slot);
+  /* AI konzultace nic nedrží, takže se ani nemá co uvolnit — proto tu není
+     lhůta a shrnutí je o jeden řádek kratší. */
+  return `<span class="eyebrow">Zbývá zaplatit</span><h3>${ai ? 'Konzultaci spustíte po zaplacení' : 'Termín držíme pro Vás'}</h3>
+    <dl class="summ">
+      ${ai ? `<dt>Konzultace</dt><dd>${esc(CFG.advisorName)}</dd>`
+        : `<dt>Termín</dt><dd>${DOW_SHORT[d.getDay()]} ${d.getDate()}. ${d.getMonth() + 1}. · ${pad2(d.getHours())}:${pad2(d.getMinutes())}</dd>
+      <dt>Forma</dt><dd>${S.booking.type === 'online' ? 'Online' : 'Osobně'}</dd>`}
+      <dt>Částka</dt><dd>${fmt(h.amount || (ai ? CFG.advisorPrice : kindPrice())) } Kč</dd>
+    </dl>
+    <div class="hold"><span class="dot"></span><span>${ai
+      ? `Po zaplacení prosím nezavírejte toto okno — odkaz ke konzultaci se otevře rovnou tady a zároveň Vám přijde e-mailem. Platí ${CFG.advisorHours} hodin, takže nic nespěchá.`
+      : `Po zaplacení prosím nezavírejte toto okno — čeká na Vás ještě krátký vstupní dotazník. Termín Vám držíme ${holdText(h)}. Jakmile platba dorazí, pošleme Vám potvrzení a pozvánku do kalendáře.`}</span></div>
+    ${isExam() ? `<div class="nextup">
+      <p class="small-caps">Co se stane po zaplacení</p>
+      <ol>
+        <li>Obratem Vám e-mailem přijde <b>žádanka na odběr krve</b> a potvrzení termínu.</li>
+        <li>S žádankou zajdete na odběrové místo Synlab, nejpozději dva dny před vyšetřením. Výsledky bývají do 48 hodin.</li>
+        <li>Vyšetření trvá 45 minut. Lékař projde výsledky s Vámi a posoudí, jestli je terapie vhodná.</li>
+        <li>Když ji schválí, nastaví dávkování, vystaví recept a vyberete si program péče.</li>
+      </ol></div>` : ''}
+    <div class="paychoice">
+      <p class="small-caps" style="margin-bottom:12px">Vyberte způsob platby</p>
+      ${ai ? '' : `<p class="fine">${lhutaVeta(h.minHours, h.lateForfeits)}</p>`}
+      ${h.checkoutUrl ? `<div class="payopt">
+        <div class="payhead"><b>Kartou, Apple Pay nebo Google Pay</b><span class="paytag fast">Rezervace termínu ihned</span></div>
+        <a class="btn pri" href="${esc(h.checkoutUrl)}" onclick="this.textContent='Přesměrováváme…';this.style.pointerEvents='none'">Zaplatit kartou</a>
+        <p class="fine" style="margin-top:10px">Přesměrujeme Vás na zabezpečenou platební bránu Stripe. Po zaplacení je termín okamžitě potvrzený.</p>
+      </div>
+      <div class="paysep">nebo</div>` : ''}
+      <div class="payopt">
+        <div class="payhead"><b>Převodem přes QR kód</b><p class="fine">Naskenujte QR kód v bankovní aplikaci. Zvolte možnost okamžité platby. Platbu obdržíme obvykle ihned.</p></div>
+        <div class="qrwrap"><div class="qr" id="payQr" aria-label="QR platba"></div>
+          <dl><dt>Částka</dt><dd>${fmt(h.amount || kindPrice())} Kč</dd>
+            <dt>Účet</dt><dd>${esc(h.account || '2801448429/2010')}</dd>
+            <dt>Var. symbol</dt><dd>${esc(h.vs)}</dd></dl></div>
+      </div>
+    </div>
+    <div class="waiting"><span class="dot"></span><span>Čekáme na platbu…</span></div>`;
+}
+
+
+/* Dotazník zabere celou šířku — vedle něj už nemá co stát. */
+function wideMode() {
+  const split = document.querySelector('.split');
+  if (!split) return;
+  split.classList.toggle('wide', !!document.getElementById('labBtn') || !!document.getElementById('lifeBtn') || !!document.getElementById('intakeBtn'));
+}
+function rerender() {
+  $('#panel').innerHTML = panelHTML();
+  wideMode();
+  save();
+  if (S.booking.hold && !S.booking.paid) { showQr(); startPolling(); }
+}
+
+async function submitReschedule(btn) {
+  const M = S.manage, slot = S.booking.slot;
+  if (!slot) return;
+  const err = m => { const el = $('#manageErr'); if (el) el.textContent = m; };
+  err(''); btn.disabled = true; btn.textContent = 'Přesouváme…';
+  try {
+    const j = await api('reschedule', { vs: M.vs, t: M.t, slot }, 30000);
+    S.manage = Object.assign({}, M, { done: 'reschedule', slot: j.slot || slot });
+    S.booking.slot = null;
+    rerender();
+  } catch (x) {
+    btn.disabled = false; btn.textContent = 'Přesunout termín';
+    err(manageError(x));
+    if (x && x.code === 'slot_taken') { slotCache = null; S.booking.slot = null; loadSlots(); }
+  }
+}
+
+async function submitCancel(btn) {
+  const M = S.manage;
+  const err = m => { const el = $('#manageErr'); if (el) el.textContent = m; };
+  err(''); btn.disabled = true; btn.textContent = 'Rušíme…';
+  try {
+    await api('cancel', { vs: M.vs, t: M.t }, 30000);
+    S.manage = Object.assign({}, M, { done: 'cancel' });
+    rerender();
+  } catch (x) {
+    btn.disabled = false; btn.textContent = 'Ano, zrušit termín';
+    err(manageError(x));
+  }
+}
+
+/* ---------- správa termínu z odkazu v e-mailu ---------- */
+const MANAGE_ERRORS = {
+  bad_token: 'Odkaz už neplatí. Napište nám, termín vyřešíme.',
+  not_found: 'Rezervaci se nepodařilo najít.',
+  too_late: 'Termín je příliš blízko. Zavolejte nám prosím, domluvíme se.',
+  slot_taken: 'Tento termín už je bohužel zabraný. Vyberte prosím jiný.',
+  bad_status: 'Tuto rezervaci už nejde měnit.',
+  rc_invalid: 'Rodné číslo nesedí. Zkontrolujte ho prosím.',
+  rc_dob: 'Rodné číslo neodpovídá datu narození.',
+  bad_address: 'Zkontrolujte prosím adresu a PSČ.',
+  bad_height: 'Chybí nám výška ze screeningu. Zavolejte prosím na +420 775 481 700.',
+  bad_weight: 'Chybí nám váha ze screeningu. Zavolejte prosím na +420 775 481 700.',
+  bad_birthdate: 'Zkontrolujte prosím datum narození.',
+  bad_name: 'Vyplňte jméno i příjmení.',
+  no_consent: 'Bez souhlasu údaje laboratoři předat nemůžeme.',
+  bad_health: 'Doplňte prosím léky, alergie a otázku k onkologické léčbě.',
+  not_paid: 'Údaje doplníme až po úhradě. Jakmile platba dorazí, ozveme se e-mailem.',
+  disabled: 'Tuto rezervaci nejde doplnit. Napište nám prosím.'
+};
+
+function docsHTML() {
+  const list = (S.manage && S.manage.docs) || [];
+  if (!list.length) return '';
+  return `<div class="callback" style="margin-top:clamp(20px,calc(1.8*var(--u)),calc(32px*var(--k)))">
+    <p class="small-caps">Vaše dokumenty</p>
+    <p class="fine" style="margin-top:8px">K nahlédnutí kdykoli. Podepisuje se až na klinice.</p>
+    ${list.map(d => `<a class="btn ghost" href="${esc(d.url)}" target="_blank" rel="noopener" style="margin-top:10px">${esc(d.name)}</a>`).join('')}
   </div>`;
 }
 
