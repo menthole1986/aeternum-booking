@@ -601,6 +601,7 @@ function panelHTML() {
 
   return `<h3 class="grad" style="margin-top:0">Vstupní konzultace</h3>
     ${priceHTML(B.type)}
+    ${!B.type ? `<p class="fine" style="margin-bottom:clamp(12px,calc(1*var(--u)),calc(18px*var(--k)))">Vyberte si podobu konzultace a ukážu Vám, jak dál.</p>` : ''}
     <div class="seg3${(CFG.advisorEnabled || CFG.advisorSoon) ? '' : ' dva'}" role="group" aria-label="Podoba konzultace">
       ${(CFG.advisorEnabled || CFG.advisorSoon) ? `<button type="button" data-btype="advisor"
         aria-pressed="${B.type === 'advisor'}"${CFG.advisorEnabled ? '' : ' title="Zatím jen k nahlédnutí, objednat ho ještě nejde"'}>
@@ -609,7 +610,7 @@ function panelHTML() {
       <button type="button" data-btype="online" aria-pressed="${B.type === 'online'}"><b>Konzultant online</b><i>${fmt(CFG.price)} Kč</i></button>
       <button type="button" data-btype="osobne" aria-pressed="${B.type === 'osobne'}"><b>Konzultant v Praze</b><i>${fmt(CFG.price)} Kč</i></button>
     </div>
-    ${B.type === 'advisor' ? advisorHTML() : B.type ? koordinatorHTML() + slotsHTML() : `<p class="fine" style="margin-top:16px">Vyberte si podobu konzultace a ukážu Vám, jak dál.</p>`}
+    ${B.type === 'advisor' ? advisorHTML() : B.type ? koordinatorHTML() + slotsHTML() : ''}
     <div class="skip">
       <p class="skip-head">Už máte jasno a konzultaci nepotřebujete?</p>
       <button type="button" class="btn lime sm" data-act="rovnouklekari">Objednejte se rovnou k lékaři za ${fmt(CFG.examPrice)} Kč</button>
